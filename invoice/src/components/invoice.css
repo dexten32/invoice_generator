@@ -1,159 +1,332 @@
+/* Global Reset since there is no index.css */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f3f4f6;
+}
+
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 /* Container for screen viewing */
 .invoice-wrapper {
     display: flex;
     justify-content: center;
+    align-items: flex-start;
+    /* Prevent vertical stretching */
     padding: 40px 20px;
-    background-color: #f3f4f6;
-    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    /* Take remaining #root height */
 }
 
 /* The actual A4 paper sized invoice */
 .invoice-container {
     width: 100%;
-    max-width: 850px;
-    /* 800-900px typical width */
+    max-width: 1000px;
     background-color: white;
-    padding: 50px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    padding: 60px 45px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
     border: 1px solid #e5e7eb;
-    color: #333;
-    font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
-
-/* Header */
-.invoice-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 20px;
-}
-
-.company-name h2 {
-    margin: 0;
     color: #111827;
-    font-size: 24px;
+    font-family: 'Open Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
 }
 
-.invoice-title h1 {
+p {
     margin: 0;
-    color: #6b7280;
-    font-size: 32px;
-    font-weight: 300;
-    letter-spacing: 2px;
-}
-
-.divider {
-    border: 0;
-    border-top: 2px solid #f3f4f6;
-    margin: 20px 0 40px 0;
-}
-
-/* Details Section */
-.invoice-details {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 40px;
-}
-
-.company-details p,
-.customer-details p {
-    margin: 5px 0;
-    color: #4b5563;
-}
-
-.invoice-details strong {
-    display: block;
-    margin-bottom: 8px;
-    color: #111827;
-}
-
-.invoice-meta {
-    text-align: right;
-}
-
-.meta-row {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-bottom: 5px;
-}
-
-.meta-row strong {
-    margin: 0;
+    padding: 1px 0;
     color: #374151;
 }
 
-.meta-row span {
-    color: #4b5563;
-    min-width: 80px;
-    text-align: left;
+.link {
+    color: #0ea5e9;
+    text-decoration: none;
 }
 
-/* Services Table */
-.services-section {
+.link:hover {
+    text-decoration: underline;
+}
+
+/* Header Section */
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    align-items: flex-start;
+}
+
+.header-left {
+    display: flex;
+    gap: 30px;
+}
+
+/* Logo specific CSS */
+.logo-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 5px;
+}
+
+.invoice-logo {
+    width: 140px;
+    height: auto;
+    object-fit: contain;
+}
+
+.business-info {
+    margin-top: 10px;
+}
+
+.business-name {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 5px 0;
+}
+
+.business-number {
+    margin-bottom: 5px;
+}
+
+/* Right Header Meta */
+.header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: 15px;
+    padding-top: 5px;
+}
+
+.meta-group {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.4;
+}
+
+.meta-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.meta-value {
+    font-size: 12px;
+    color: #374151;
+}
+
+.balance-due-top {
+    margin-top: 5px;
+}
+
+.balance-due-top .meta-label {
+    color: #0ea5e9;
+    /* Balance Due is blue colored usually or dark */
+    font-weight: 800;
+}
+
+/* Dividers */
+.divider-full {
+    border-bottom: 2px solid #e5e7eb;
+    margin: 15px 0;
+}
+
+.divider-thin {
+    border-bottom: 1px solid #d1d5db;
+    margin: 8px 0;
+}
+
+/* Bill To Section */
+.bill-to-section {
     margin-bottom: 40px;
 }
 
-.services-table {
+.section-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #6b7280;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.client-name {
+    font-size: 16px;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.contact-line {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.icon {
+    font-size: 12px;
+    color: #6b7280;
+    width: 15px;
+    text-align: center;
+}
+
+/* Services Table */
+.table-container {
+    margin-bottom: 20px;
+}
+
+.items-table {
     width: 100%;
     border-collapse: collapse;
 }
 
-.services-table th {
-    background-color: #f9fafb;
-    color: #374151;
-    font-weight: 600;
-    padding: 12px 15px;
-    border-bottom: 2px solid #e5e7eb;
+.items-table th {
+    font-size: 10px;
+    font-weight: 800;
+    color: #000;
+    padding: 8px 0;
+    border-top: 2px solid #000;
+    border-bottom: 1px solid #000;
 }
 
-.services-table td {
-    padding: 15px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #4b5563;
-}
-
-.text-left {
-    text-align: left;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.text-right {
-    text-align: right;
-}
-
-/* Totals Section */
-.totals-section {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.totals-row {
-    display: flex;
-    justify-content: space-between;
-    width: 250px;
-    padding: 10px 15px;
-    color: #4b5563;
-}
-
-.totals-row span:last-child {
-    font-weight: 500;
+.items-table td {
+    padding: 15px 0;
+    vertical-align: top;
+    border-bottom: 1px solid #d1d5db;
     color: #111827;
 }
 
-.totals-row.grand-total {
-    margin-top: 10px;
-    background-color: #f9fafb;
-    border-top: 2px solid #e5e7eb;
-    font-size: 18px;
-    font-weight: bold;
+.col-desc {
+    text-align: left;
+    width: 60%;
 }
 
-.totals-row.grand-total span {
+.col-rate {
+    text-align: right;
+    width: 15%;
+}
+
+.col-qty {
+    text-align: center;
+    width: 10%;
+}
+
+.col-amount {
+    text-align: right;
+    width: 15%;
+}
+
+.item-desc {
+    color: #4b5563;
+    font-size: 11px;
+    margin-top: 3px;
+}
+
+/* Bottom Section */
+.bottom-section {
+    display: flex;
+    justify-content: flex-end;
+    /* Align totals right */
+    margin-top: 15px;
+}
+
+.totals-wrapper {
+    width: 40%;
+    /* Width of the entire right block matching roughly RATE + QTY + AMOUNT */
+    display: flex;
+    flex-direction: column;
+}
+
+.totals-table {
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+}
+
+.total-label {
+    font-weight: 800;
+    color: #111827;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+}
+
+.total-value {
+    color: #111827;
+}
+
+.balance-due-bottom {
+    margin-top: 15px;
+    align-items: flex-end;
+}
+
+.balance-due-bottom .total-label {
+    color: #111827;
+    font-size: 13px;
+}
+
+.balance-due-bottom .total-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111827;
+}
+
+/* Signature */
+.signature-section {
+    margin-top: 10px;
+    align-self: flex-start;
+    padding-left: 20px;
+}
+
+.signature-image {
+    height: 50px;
+    margin-bottom: 0px;
+}
+
+.signature-svg {
+    width: 150px;
+    height: 50px;
+}
+
+.signature-line {
+    border-bottom: 1px solid #d1d5db;
+    width: 150px;
+    margin-bottom: 10px;
+}
+
+.signature-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 2px;
+}
+
+.signature-date {
+    font-size: 11px;
+    color: #111827;
+}
+
+/* Footer Notes */
+.footer-notes {
+    margin-top: 80px;
+    font-size: 11px;
     color: #111827;
 }
 
@@ -173,14 +346,7 @@
         box-shadow: none;
         max-width: 100%;
         padding: 0;
+        /* Let print margins handle it */
         border: none;
-    }
-
-    /* Force print background colors if supported by browser */
-    .services-table th,
-    .totals-row.grand-total {
-        background-color: #f9fafb !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
     }
 }
