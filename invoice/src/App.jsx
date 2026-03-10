@@ -1,6 +1,6 @@
 import React from 'react';
-import InvoiceEditor from './components/InvoiceEditor';
-import InvoicePreview from './components/InvoicePreview';
+import InvoiceEditor from './components/InvoiceEditor/InvoiceEditor';
+import InvoicePreview from './components/InvoicePreview/InvoicePreview';
 import './App.css';
 
 function App() {

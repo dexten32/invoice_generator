@@ -10,11 +10,24 @@
     position: relative;
 }
 
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 24px 8px 24px;
+}
+
+.preview-heading {
+    margin: 0;
+    color: #6b7280;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: 'Open Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
 .icon-download-btn {
-    position: absolute;
-    top: 24px;
-    right: 24px;
-    z-index: 10;
     background-color: white;
     border: 1px solid #e5e7eb;
     color: #4b5563;
