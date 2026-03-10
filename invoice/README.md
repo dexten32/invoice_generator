@@ -1,16 +1,47 @@
-# React + Vite
+# Professional Invoice Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A high-fidelity, dynamic invoice generation application built with React, Vite, and Chakra UI. This tool allows users to create, customize, and download professional PDF invoices in real-time.
 
-Currently, two official plugins are available:
+## ✨ Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Dynamic Editor**: Real-time editing of business details, client info, and line items.
+- **Logo Support**: Upload your business logo directly into the invoice.
+- **Live Preview**: Pixel-perfect preview synced with the editor.
+- **Auto-Calculations**: Instant calculation of subtotals, tax (GST/VAT), and discounts.
+- **PDF Export**: One-click professional PDF download.
+- **Modern UI**: Clean, high-contrast interface with optimized accessibility (HSL colors).
 
-## React Compiler
+## 🚀 Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: [React](https://reactjs.org/) + [Vite](https://vitejs.dev/)
+- **UI Architecture**: [Chakra UI](https://chakra-ui.com/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/) + Vanilla CSS
+- **PDF Generation**: `jspdf` + `html2canvas`
+- **Iconography**: `react-icons` (Lucide)
 
-## Expanding the ESLint configuration
+## 🛠️ Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Installation
+
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+### Development
+
+Run the development server:
+```bash
+npm run dev
+```
+
+### Building for Production
+
+Build the optimized bundle:
+```bash
+npm run build
+```
+
+## 📜 Project History
+See [LOGBOOK.md](./LOGBOOK.md) for a detailed history of all development changes and updates.
