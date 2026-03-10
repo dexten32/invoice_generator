@@ -1,4 +1,5 @@
 import React from 'react';
+import cynoxLogo from '../assets/cynox_logo.png';
 import './invoice.css';
 
 const Invoice = () => {
@@ -11,7 +12,7 @@ const Invoice = () => {
                     <div className="header-left">
                         <div className="logo-container">
                             {/* Imported Logo */}
-                            <img src="../assets/cynox_logo.png" alt="Cynox Logo" className="invoice-logo" />
+                            <img src={cynoxLogo} alt="Cynox Logo" className="invoice-logo" />
                         </div>
 
                         <div className="business-info">
