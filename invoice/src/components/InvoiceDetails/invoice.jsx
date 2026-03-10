@@ -28,10 +28,10 @@ const Invoice = ({ data }) => {
                 <div className="invoice-header">
                     <div className="header-left">
                         <div className="logo-container">
-                            {business.logo ? (
-                                <img src={business.logo} alt="Logo" className="invoice-logo" />
+                            {data.business.logo ? (
+                                <img src={data.business.logo} alt="Logo" className="invoice-logo" />
                             ) : (
-                                <div className="logo-placeholder">LOGO</div>
+                                <div className="placeholder-logo">LOGO</div>
                             )}
                         </div>
 

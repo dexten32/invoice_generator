@@ -7,6 +7,8 @@ import {
     Text,
     IconButton,
     Heading,
+    Flex,
+    Separator,
 } from '@chakra-ui/react';
 import {
     AccordionItem,
@@ -16,7 +18,20 @@ import {
 } from '@/components/ui/accordion';
 import { Field } from '@/components/ui/field';
 import { Button } from '@/components/ui/button';
-import { LuPlus, LuTrash2 } from 'react-icons/lu';
+import {
+    LuPlus,
+    LuTrash2,
+    LuBuilding2,
+    LuUser,
+    LuCalendar,
+    LuListChecks,
+    LuCalculator,
+    LuImage,
+    LuUpload,
+    LuGlobe,
+    LuMail,
+    LuPhone
+} from 'react-icons/lu';
 import './InvoiceEditor.css';
 
 const InvoiceEditor = ({ data, onChange }) => {
@@ -64,31 +79,77 @@ const InvoiceEditor = ({ data, onChange }) => {
         }));
     };
 
+    const handleLogoUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                handleChange('business', 'logo', reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
         <div className="invoice-editor">
             <header className="editor-header">
-                <Heading size="lg" fontWeight="extrabold" color="gray.900">Invoice Editor</Heading>
-                <Text color="gray.600" fontSize="sm">Customize your invoice details below.</Text>
+                <Flex align="center" gap="3">
+                    <Box bg="blue.600" p="2" borderRadius="lg">
+                        <LuCalculator color="white" size="24" />
+                    </Box>
+                    <Box>
+                        <Heading size="lg" fontWeight="extrabold" color="gray.900">Invoice Editor</Heading>
+                        <Text color="gray.600" fontSize="sm">Manage your business and client details.</Text>
+                    </Box>
+                </Flex>
             </header>
 
-            <AccordionRoot collapsible defaultValue={["business"]} variant="subtle" spaceY="4">
+            <AccordionRoot collapsible defaultValue={["items"]} variant="subtle" spaceY="4">
                 {/* Business Information */}
                 <AccordionItem value="business">
-                    <AccordionItemTrigger fontWeight="bold" color="gray.800">Business Information</AccordionItemTrigger>
+                    <AccordionItemTrigger fontWeight="bold" color="gray.800">
+                        <Flex align="center" gap="2">
+                            <LuBuilding2 size="18" className="text-blue-500" />
+                            Business Information
+                        </Flex>
+                    </AccordionItemTrigger>
                     <AccordionItemContent>
                         <Stack gap="4" p="2">
+                            <Box className="logo-upload-area" onClick={() => document.getElementById('logo-input').click()}>
+                                {data.business.logo ? (
+                                    <Box position="relative">
+                                        <img src={data.business.logo} alt="Logo Preview" className="logo-preview-img" />
+                                        <Box className="logo-overlay">
+                                            <LuUpload /> Change Logo
+                                        </Box>
+                                    </Box>
+                                ) : (
+                                    <Stack align="center" gap="1" color="gray.500">
+                                        <LuImage size="24" />
+                                        <Text fontSize="xs">Upload Business Logo</Text>
+                                    </Stack>
+                                )}
+                                <input
+                                    id="logo-input"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleLogoUpload}
+                                    hidden
+                                />
+                            </Box>
+
                             <Field label="Business Name">
                                 <Input
                                     value={data.business.name}
                                     onChange={(e) => handleChange('business', 'name', e.target.value)}
-                                    placeholder="Enter your business name"
+                                    placeholder="e.g. Acme Corp"
                                 />
                             </Field>
-                            <Field label="Business Number (GST/VAT)">
+                            <Field label="Tax Number / GSTIN">
                                 <Input
                                     value={data.business.number}
                                     onChange={(e) => handleChange('business', 'number', e.target.value)}
-                                    placeholder="e.g. GSTIN12345"
+                                    placeholder="e.g. 29AAAAA0000A1Z5"
                                 />
                             </Field>
                             <Stack direction="row" gap="4">
@@ -96,29 +157,37 @@ const InvoiceEditor = ({ data, onChange }) => {
                                     <Input
                                         value={data.business.address1}
                                         onChange={(e) => handleChange('business', 'address1', e.target.value)}
+                                        placeholder="Street address"
                                     />
                                 </Field>
                                 <Field label="Address Line 2" flex="1">
                                     <Input
                                         value={data.business.address2}
                                         onChange={(e) => handleChange('business', 'address2', e.target.value)}
+                                        placeholder="City, State"
                                     />
                                 </Field>
                             </Stack>
                             <Stack direction="row" gap="4">
-                                <Field label="Email" flex="1">
-                                    <Input
-                                        type="email"
-                                        value={data.business.email}
-                                        onChange={(e) => handleChange('business', 'email', e.target.value)}
-                                    />
+                                <Field label="Email Address" flex="1">
+                                    <Flex align="center" gap="2" width="full">
+                                        <LuMail size="16" className="text-gray-400" />
+                                        <Input
+                                            type="email"
+                                            value={data.business.email}
+                                            onChange={(e) => handleChange('business', 'email', e.target.value)}
+                                        />
+                                    </Flex>
                                 </Field>
                                 <Field label="Website" flex="1">
-                                    <Input
-                                        value={data.business.website}
-                                        onChange={(e) => handleChange('business', 'website', e.target.value)}
-                                        placeholder="business.com"
-                                    />
+                                    <Flex align="center" gap="2" width="full">
+                                        <LuGlobe size="16" className="text-gray-400" />
+                                        <Input
+                                            value={data.business.website}
+                                            onChange={(e) => handleChange('business', 'website', e.target.value)}
+                                            placeholder="www.yoursite.com"
+                                        />
+                                    </Flex>
                                 </Field>
                             </Stack>
                         </Stack>
@@ -127,13 +196,19 @@ const InvoiceEditor = ({ data, onChange }) => {
 
                 {/* Client Information */}
                 <AccordionItem value="client">
-                    <AccordionItemTrigger fontWeight="bold" color="gray.800">Client Information</AccordionItemTrigger>
+                    <AccordionItemTrigger fontWeight="bold" color="gray.800">
+                        <Flex align="center" gap="2">
+                            <LuUser size="18" className="text-blue-500" />
+                            Client Information
+                        </Flex>
+                    </AccordionItemTrigger>
                     <AccordionItemContent>
                         <Stack gap="4" p="2">
                             <Field label="Client Name">
                                 <Input
                                     value={data.client.name}
                                     onChange={(e) => handleChange('client', 'name', e.target.value)}
+                                    placeholder="Enter client's legal name"
                                 />
                             </Field>
                             <Stack direction="row" gap="4">
@@ -159,10 +234,13 @@ const InvoiceEditor = ({ data, onChange }) => {
                                     />
                                 </Field>
                                 <Field label="Phone" flex="1">
-                                    <Input
-                                        value={data.client.phone}
-                                        onChange={(e) => handleChange('client', 'phone', e.target.value)}
-                                    />
+                                    <Flex align="center" gap="2" width="full">
+                                        <LuPhone size="16" className="text-gray-400" />
+                                        <Input
+                                            value={data.client.phone}
+                                            onChange={(e) => handleChange('client', 'phone', e.target.value)}
+                                        />
+                                    </Flex>
                                 </Field>
                             </Stack>
                         </Stack>
@@ -171,13 +249,19 @@ const InvoiceEditor = ({ data, onChange }) => {
 
                 {/* Invoice Metadata */}
                 <AccordionItem value="meta">
-                    <AccordionItemTrigger fontWeight="bold" color="gray.800">Invoice Meta Details</AccordionItemTrigger>
+                    <AccordionItemTrigger fontWeight="bold" color="gray.800">
+                        <Flex align="center" gap="2">
+                            <LuCalendar size="18" className="text-blue-500" />
+                            Invoice Meta Details
+                        </Flex>
+                    </AccordionItemTrigger>
                     <AccordionItemContent>
                         <Stack direction="row" gap="4" p="2">
                             <Field label="Invoice #" flex="1">
                                 <Input
                                     value={data.meta.invoiceNumber}
                                     onChange={(e) => handleChange('meta', 'invoiceNumber', e.target.value)}
+                                    placeholder="INV-001"
                                 />
                             </Field>
                             <Field label="Date" flex="1">
@@ -190,7 +274,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                                 <Input
                                     value={data.meta.dueDate}
                                     onChange={(e) => handleChange('meta', 'dueDate', e.target.value)}
-                                    placeholder="e.g. On Receipt"
+                                    placeholder="On Receipt"
                                 />
                             </Field>
                         </Stack>
@@ -200,38 +284,47 @@ const InvoiceEditor = ({ data, onChange }) => {
                 {/* Line Items */}
                 <AccordionItem value="items">
                     <AccordionItemTrigger fontWeight="bold" color="gray.800">
-                        Line Items ({data.items.length})
+                        <Flex align="center" gap="2">
+                            <LuListChecks size="18" className="text-blue-500" />
+                            Line Items ({data.items.length})
+                        </Flex>
                     </AccordionItemTrigger>
                     <AccordionItemContent>
                         <Stack gap="6" p="2">
                             {data.items.map((item, index) => (
                                 <Box
                                     key={item.id}
-                                    p="4"
+                                    p="5"
                                     borderWidth="1px"
-                                    borderRadius="md"
+                                    borderRadius="xl"
                                     position="relative"
-                                    bg="gray.50"
+                                    bg="white"
+                                    boxShadow="sm"
+                                    className="item-card-hover"
                                 >
                                     <Stack gap="4">
-                                        <Stack direction="row" justify="space-between" align="center">
-                                            <Text fontWeight="bold" fontSize="sm" color="gray.700">Item {index + 1}</Text>
+                                        <Flex justify="space-between" align="center">
+                                            <Box bg="blue.50" px="3" py="1" borderRadius="full">
+                                                <Text fontWeight="bold" fontSize="xs" color="blue.600">ITEM #{index + 1}</Text>
+                                            </Box>
                                             <IconButton
                                                 size="sm"
-                                                variant="ghost"
+                                                variant="subtle"
                                                 colorPalette="red"
                                                 aria-label="Remove item"
                                                 onClick={() => removeItem(item.id)}
+                                                className="rounded-full"
                                             >
                                                 <LuTrash2 />
                                             </IconButton>
-                                        </Stack>
+                                        </Flex>
 
                                         <Field label="Description">
                                             <Input
                                                 value={item.description}
                                                 onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
-                                                bg="white"
+                                                placeholder="Service or product name"
+                                                variant="outline"
                                             />
                                         </Field>
 
@@ -239,37 +332,37 @@ const InvoiceEditor = ({ data, onChange }) => {
                                             <Textarea
                                                 value={item.longDescription}
                                                 onChange={(e) => handleItemChange(item.id, 'longDescription', e.target.value)}
-                                                bg="white"
+                                                placeholder="Detailed notes"
                                                 size="sm"
+                                                rows={2}
                                             />
                                         </Field>
 
-                                        <Stack direction="row" gap="4">
-                                            <Field label="Rate" flex="1">
+                                        <Flex gap="4">
+                                            <Field label="Rate" flex="2">
                                                 <Input
                                                     type="number"
                                                     value={item.rate}
                                                     onChange={(e) => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)}
-                                                    bg="white"
+                                                    textAlign="right"
                                                 />
                                             </Field>
-                                            <Field label="Quantity" flex="1">
+                                            <Field label="Qty" flex="1">
                                                 <Input
                                                     type="number"
                                                     value={item.quantity}
                                                     onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                                                    bg="white"
+                                                    textAlign="center"
                                                 />
                                             </Field>
-                                            <Field label="Amount" flex="1">
-                                                <Input
-                                                    value={(item.rate * item.quantity).toFixed(2)}
-                                                    readOnly
-                                                    bg="gray.100"
-                                                    disabled
-                                                />
+                                            <Field label="Amount" flex="2">
+                                                <Box bg="gray.50" px="3" h="40px" display="flex" align="center" borderRadius="md" border="1px solid #e2e8f0">
+                                                    <Text fontWeight="bold" color="gray.700" my="auto" ml="auto">
+                                                        ₹{(item.rate * item.quantity).toLocaleString('en-IN')}
+                                                    </Text>
+                                                </Box>
                                             </Field>
-                                        </Stack>
+                                        </Flex>
                                     </Stack>
                                 </Box>
                             ))}
@@ -279,23 +372,29 @@ const InvoiceEditor = ({ data, onChange }) => {
                                 colorPalette="blue"
                                 onClick={addItem}
                                 width="full"
+                                size="lg"
+                                className="border-dashed"
                             >
-                                <LuPlus /> Add Item
+                                <LuPlus /> Add Line Item
                             </Button>
 
-                            <Stack direction="row" gap="4" pt="4" borderTopWidth="1px">
+                            <Separator />
+
+                            <Stack direction="row" gap="4">
                                 <Field label="Tax Rate (%)" flex="1">
                                     <Input
                                         type="number"
                                         value={data.taxRate}
                                         onChange={(e) => onChange(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))}
+                                        placeholder="18"
                                     />
                                 </Field>
-                                <Field label="Discount (Fix Amt)" flex="1">
+                                <Field label="Discount (₹)" flex="1">
                                     <Input
                                         type="number"
                                         value={data.discount}
                                         onChange={(e) => onChange(prev => ({ ...prev, discount: parseFloat(e.target.value) || 0 }))}
+                                        placeholder="0"
                                     />
                                 </Field>
                             </Stack>
@@ -304,13 +403,15 @@ const InvoiceEditor = ({ data, onChange }) => {
                 </AccordionItem>
             </AccordionRoot>
 
-            <Box mt="8" p="4" bg="gray.50" borderRadius="md">
-                <Field label="Footer Notes">
+            <Box mt="6" p="6" bg="white" borderRadius="xl" border="1px solid #e2e8f0">
+                <Field label="Footer / Payment Notes">
                     <Textarea
                         value={data.footerNotes}
                         onChange={(e) => onChange(prev => ({ ...prev, footerNotes: e.target.value }))}
-                        placeholder="Additional terms, bank details, etc."
-                        bg="white"
+                        placeholder="e.g. Bank Account Details or Terms"
+                        variant="plain"
+                        size="sm"
+                        minH="100px"
                     />
                 </Field>
             </Box>

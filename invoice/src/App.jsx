@@ -6,14 +6,13 @@ import './App.css';
 function App() {
   const [invoiceData, setInvoiceData] = useState({
     business: {
-      name: 'Business Name',
-      number: '324235346363',
-      address1: '123 Business St',
+      name: 'Your Business Name',
+      number: 'GSTINXXXXXXXXXXXX',
+      address1: '123 Business Street',
       address2: 'City, State, Zip',
-      phone: '1234567890',
-      email: 'name@business.com',
-      website: 'business.com',
-      logo: null
+      email: 'contact@business.com',
+      website: 'www.business.com',
+      logo: null,
     },
     client: {
       name: 'Client Name',
