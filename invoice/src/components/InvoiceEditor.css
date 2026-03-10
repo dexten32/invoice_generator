@@ -1,0 +1,33 @@
+.invoice-editor {
+    flex: 1;
+    /* Takes the remaining space */
+    background-color: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    padding: 32px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+    font-family: 'Open Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    overflow-y: auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.invoice-editor h2 {
+    margin-top: 0;
+    color: #111827;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.invoice-editor p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.editor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}

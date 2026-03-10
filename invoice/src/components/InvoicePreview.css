@@ -1,0 +1,36 @@
+.invoice-preview {
+    width: 40%;
+    /* Take 40% of the screen width */
+    min-width: 400px;
+    /* Optional: Ensure it doesn't get too small on smaller screens */
+    overflow-y: auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.icon-download-btn {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    z-index: 10;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.icon-download-btn:hover {
+    background-color: #f9fafb;
+    color: #0ea5e9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
