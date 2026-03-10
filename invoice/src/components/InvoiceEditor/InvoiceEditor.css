@@ -1,33 +1,80 @@
 .invoice-editor {
     flex: 1;
-    /* Takes the remaining space */
-    background-color: #ffffff;
-    border-right: 1px solid #e5e7eb;
-    padding: 32px;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
-    font-family: 'Open Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    padding: 24px 32px;
+    font-family: Inter, 'Open Sans', 'Segoe UI', system-ui, sans-serif;
     overflow-y: auto;
     height: 100vh;
     display: flex;
     flex-direction: column;
+    gap: 24px;
+    color: #1f2937;
+    /* Force high contrast dark text */
+}
+
+.editor-header {
+    margin-bottom: 8px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed #cbd5e1;
+}
+
+.editor-header h2 {
+    color: #111827;
+    font-size: 26px;
+    font-weight: 800;
+}
+
+/* Custom Scrollbar for the editor */
+.invoice-editor::-webkit-scrollbar {
+    width: 6px;
+}
+
+.invoice-editor::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.invoice-editor::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.invoice-editor::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+/* Inputs and interactive elements */
+.invoice-editor input,
+.invoice-editor textarea {
+    background-color: white !important;
+    color: #1f2937 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.invoice-editor input:focus,
+.invoice-editor textarea:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 1px #3b82f6 !important;
+}
+
+/* Accordion Styling */
+.invoice-editor .chakra-accordion__item {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 12px;
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+}
+
+/* Force label visibility in Field components */
+.invoice-editor label {
+    color: #374151 !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    margin-bottom: 4px !important;
 }
 
 .invoice-editor h2 {
-    margin-top: 0;
-    color: #111827;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.invoice-editor p {
-    color: #6b7280;
-    font-size: 14px;
-    margin-bottom: 24px;
-}
-
-.editor-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+    margin: 0;
 }

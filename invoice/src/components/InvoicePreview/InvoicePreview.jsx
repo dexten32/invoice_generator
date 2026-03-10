@@ -6,7 +6,7 @@ import { Button, DownloadTrigger, FormatByte } from '@chakra-ui/react';
 import { LuFileDown } from 'react-icons/lu';
 import './InvoicePreview.css';
 
-const InvoicePreview = () => {
+const InvoicePreview = ({ data }) => {
     const downloadPDF = (e) => {
         if (e) e.preventDefault();
 
@@ -68,7 +68,7 @@ const InvoicePreview = () => {
                     </DownloadTrigger>
                 </div>
             </div>
-            <Invoice />
+            <Invoice data={data} />
         </div>
     );
 };
