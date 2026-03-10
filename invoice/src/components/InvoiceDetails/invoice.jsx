@@ -5,7 +5,7 @@ import './invoice.css';
 const Invoice = () => {
     return (
         <div className="invoice-wrapper">
-            <div className="invoice-container">
+            <div className="invoice-container select-none">
 
                 {/* Top Header Section */}
                 <div className="invoice-header">
