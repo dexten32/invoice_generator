@@ -286,11 +286,11 @@ p {
 
 .balance-due-bottom .total-label {
     color: #111827;
-    font-size: 13px;
+    font-size: 11px;
 }
 
 .balance-due-bottom .total-value {
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 800;
     color: #111827;
 }

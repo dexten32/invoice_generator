@@ -1,8 +1,6 @@
 .invoice-preview {
     width: 40%;
-    /* Take 40% of the screen width */
     min-width: 400px;
-    /* Optional: Ensure it doesn't get too small on smaller screens */
     overflow-y: auto;
     height: 100vh;
     display: flex;
@@ -10,40 +8,31 @@
     position: relative;
 }
 
+.preview-header-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 20px 4px 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .preview-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 24px 8px 24px;
+    width: 100%;
+    max-width: 650px;
+
+    box-sizing: border-box;
 }
 
 .preview-heading {
     margin: 0;
     color: #6b7280;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 13px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-family: 'Open Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
-
-.icon-download-btn {
-    background-color: white;
-    border: 1px solid #e5e7eb;
-    color: #4b5563;
-    cursor: pointer;
-    padding: 10px;
-    border-radius: 50%;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.icon-download-btn:hover {
-    background-color: #f9fafb;
-    color: #0ea5e9;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
