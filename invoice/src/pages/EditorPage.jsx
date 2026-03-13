@@ -8,10 +8,10 @@ const EditorPage = () => {
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 items-start">
-      <div className="w-full lg:w-3/5">
+      <div className="w-full lg:w-1/2">
         <InvoiceEditor data={invoiceData} onChange={setInvoiceData} />
       </div>
-      <div className="w-full lg:w-2/5 sticky top-8">
+      <div className="w-full lg:w-1/2 sticky top-8">
         <InvoicePreview data={invoiceData} />
       </div>
     </div>

@@ -12,53 +12,51 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex flex-col h-screen w-72 bg-slate-950 text-slate-100 border-r border-white/5 relative z-50 overflow-hidden shadow-[20px_0_50px_-20px_rgba(0,0,0,0.5)]">
+    <div className="sidebar-container">
       {/* Decorative Gradient Background */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-20">
+      <div className="sidebar-bg-glow">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/30 blur-[100px] rounded-full" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/20 blur-[100px] rounded-full" />
       </div>
 
       {/* Brand Header */}
-      <div className="p-8 relative">
+      <div className="sidebar-header">
         <div className="flex items-center gap-3.5 group cursor-pointer">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-primary to-blue-700 flex items-center justify-center shadow-xl shadow-primary/30 group-hover:scale-105 transition-transform duration-500">
+          <div className="sidebar-brand-icon">
             <LayoutDashboard className="w-6 h-6 text-white" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-xl font-black tracking-tight text-white leading-none">
+            <h1 className="sidebar-brand-text">
               Invo<span className="text-primary font-black">Gen</span>
             </h1>
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1.5 opacity-70">Workspace Pro</span>
+            <span className="sidebar-brand-version">Workspace Pro</span>
           </div>
         </div>
       </div>
       
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto custom-scrollbar relative">
-        <div className="px-4 mb-4 text-[11px] font-black text-slate-600 uppercase tracking-[0.25em] flex items-center gap-2">
+      <nav className="sidebar-nav-list custom-scrollbar">
+        <div className="nav-group-label">
           <span>General</span>
-          <div className="h-px flex-1 bg-slate-800/50" />
+          <div className="nav-group-line" />
         </div>
         
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
-            className="block group"
+            className="nav-item-link group"
           >
             {({ isActive }) => (
               <div className={cn(
-                "flex items-center gap-3.5 px-4 py-3.5 rounded-2xl transition-all duration-500 relative overflow-hidden",
-                isActive 
-                  ? "bg-primary text-white shadow-[0_10px_20px_-5px_rgba(var(--primary),0.3)]" 
-                  : "text-slate-400 hover:text-white hover:bg-white/5"
+                "nav-item-container",
+                isActive ? "nav-item-active" : "nav-item-inactive"
               )}>
                 {/* Active Indicator Backdrop */}
                 {isActive && (
                   <motion.div 
                     layoutId="activeNav"
-                    className="absolute inset-0 bg-primary z-0"
+                    className="nav-item-indicator"
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   />
                 )}
@@ -87,8 +85,8 @@ const Sidebar = () => {
       </nav>
 
       {/* Account Section */}
-      <div className="p-6 mt-auto relative border-t border-white/5 bg-black/20">
-        <button className="flex items-center gap-3.5 w-full p-3 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all duration-300 group">
+      <div className="sidebar-footer">
+        <button className="user-profile-btn group">
           <div className="relative">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-200 to-white flex items-center justify-center text-slate-900 font-black text-sm shadow-lg">
               HS

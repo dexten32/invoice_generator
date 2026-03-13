@@ -1,72 +1,79 @@
 .invoice-editor {
     flex: 1;
-    background-color: #f8fafc;
-    border-right: 1px solid #e2e8f0;
-    padding: 24px 32px;
-    font-family: Inter, 'Open Sans', 'Segoe UI', system-ui, sans-serif;
-    overflow-y: auto;
-    height: 100vh;
+    background-color: transparent;
+    padding: 0;
+    font-family: inherit;
+    overflow-y: visible;
     display: flex;
     flex-direction: column;
-    gap: 24px;
-    color: #1f2937;
-    /* Force high contrast dark text */
+    gap: 32px;
 }
 
 .editor-header {
-    margin-bottom: 8px;
-    padding-bottom: 20px;
-    border-bottom: 1px dashed #cbd5e1;
+    margin-bottom: 0;
+    padding-bottom: 24px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
-.editor-header h2 {
-    color: #111827;
-    font-size: 26px;
-    font-weight: 800;
+.dark .editor-header {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
 /* Logo Upload Styling */
 .logo-upload-area {
     width: 100%;
-    height: 120px;
-    border: 2px dashed #cbd5e1;
-    border-radius: 12px;
+    height: 140px;
+    border: 2px dashed #e2e8f0;
+    border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     overflow: hidden;
-    transition: all 0.2s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     background-color: #f8fafc;
+    position: relative;
+}
+
+.dark .logo-upload-area {
+    background-color: #0f172a;
+    border-color: #1e293b;
 }
 
 .logo-upload-area:hover {
-    border-color: #3b82f6;
-    background-color: #eff6ff;
+    border-color: var(--primary);
+    background-color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(var(--primary), 0.1);
 }
 
 .logo-preview-img {
-    max-height: 100px;
+    max-height: 110px;
     width: auto;
     object-fit: contain;
+    transition: transform 0.5s ease;
+}
+
+.logo-upload-area:hover .logo-preview-img {
+    transform: scale(1.02);
 }
 
 .logo-overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     opacity: 0;
-    transition: opacity 0.2s ease;
-    font-size: 12px;
-    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
 }
 
 .logo-upload-area:hover .logo-overlay {
@@ -75,66 +82,54 @@
 
 /* Item Card Enhancements */
 .item-card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .item-card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* Custom Scrollbar for the editor */
-.invoice-editor::-webkit-scrollbar {
-    width: 6px;
-}
-
-.invoice-editor::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.invoice-editor::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 10px;
-}
-
-.invoice-editor::-webkit-scrollbar-thumb:hover {
-    background: #cbd5e1;
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+    border-color: var(--primary);
 }
 
 /* Inputs and interactive elements */
 .invoice-editor input,
 .invoice-editor textarea {
-    background-color: white !important;
-    color: #1f2937 !important;
-    border: 1px solid #e2e8f0 !important;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px !important;
+    font-weight: 500 !important;
 }
 
-.invoice-editor input:focus,
-.invoice-editor textarea:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-    outline: none;
-}
-
-/* Accordion Styling */
-.invoice-editor .chakra-accordion__item {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    margin-bottom: 12px;
-    border: 1px solid #f1f5f9;
+/* Accordion Styling Overlay */
+.invoice-editor [data-part="item"] {
+    background: white !important;
+    border-radius: 24px !important;
+    border: 1px solid #f1f5f9 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
     overflow: hidden;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+
+.invoice-editor [data-part="item"]:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+}
+
+.invoice-editor [data-part="trigger"] {
+    padding: 24px !important;
+    font-size: 15px !important;
+    letter-spacing: -0.01em !important;
+}
+
+.invoice-editor [data-part="content"] {
+    padding: 0 24px 24px 24px !important;
 }
 
 /* Force label visibility in Field components */
 .invoice-editor label {
-    color: #4b5563 !important;
-    font-weight: 600 !important;
-    font-size: 13px !important;
-    margin-bottom: 6px !important;
-}
-
-.invoice-editor h2 {
-    margin: 0;
-}
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+    color: #94a3b8 !important;
+    margin-bottom: 8px !important;
+}

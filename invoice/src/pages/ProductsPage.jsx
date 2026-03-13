@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { Plus, Trash2, Package, Tag, DollarSign, List, Search, Filter, ArrowUpRight, ShoppingBag, ArrowRight } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Plus, Trash2, Package, Tag, DollarSign, List, Search, 
+  Filter, ArrowUpRight, ShoppingBag, ArrowRight,
+  PlusCircle, LayoutGrid, Box, Archive, Info
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -10,12 +15,14 @@ const ProductsPage = () => {
   const [products, setProducts] = useLocalStorage('products', []);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: 'Service' });
   const [searchTerm, setSearchTerm] = useState('');
+  const [isFormVisible, setIsFormVisible] = useState(false);
 
   const addProduct = (e) => {
     e.preventDefault();
     if (!newProduct.name || !newProduct.price) return;
     setProducts([{ ...newProduct, id: Date.now() }, ...products]);
     setNewProduct({ name: '', price: '', description: '', category: 'Service' });
+    setIsFormVisible(false);
   };
 
   const deleteProduct = (id) => {
@@ -28,161 +35,251 @@ const ProductsPage = () => {
   );
 
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-             Inventory Hub
-            <span className="text-xs font-bold bg-indigo-100 text-indigo-600 px-2.5 py-1 rounded-full">{products.length}</span>
+    <div className="space-y-12 pb-20">
+      {/* Header Section */}
+      <div className="page-header-container">
+        <div className="page-title-group">
+          <div className="page-subheader">
+            <Box className="w-4 h-4" />
+            Inventory Control
+          </div>
+          <h1 className="page-title">
+            Product <span>Hub</span>
           </h1>
-          <p className="text-slate-500 mt-2 text-lg font-medium">Manage your products, services, and pricing models.</p>
+          <p className="page-description">
+            Streamline your catalog management with high-precision inventory tracking.
+          </p>
         </div>
-        <div className="flex gap-3 w-full md:w-auto">
-          <Button variant="outline" className="flex-1 md:flex-none h-12 px-6 rounded-xl border-slate-200">
-            Categories
+        
+        <div className="action-button-group">
+          <Button variant="outline" className="btn-secondary">
+            <Archive className="w-4 h-4 mr-2" /> Categories
           </Button>
-          <Button className="flex-1 md:flex-none h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xl shadow-indigo-600/20">
-            <Plus className="w-4 h-4 mr-2" /> New Product
+          <Button 
+            onClick={() => setIsFormVisible(true)}
+            className="btn-primary"
+          >
+            <PlusCircle className="w-5 h-5 mr-2" /> Create Product
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-        {/* Left Column: Form */}
-        <div className="xl:col-span-4">
-          <Card className="border-none shadow-2xl shadow-slate-200/60 bg-white sticky top-10 rounded-3xl overflow-hidden ring-1 ring-slate-100">
-            <div className="h-2 bg-indigo-600" />
-            <CardHeader className="pt-8 pb-4">
-              <CardTitle className="text-xl font-bold flex items-center gap-2 text-slate-800">
-                <Package className="w-5 h-5 text-indigo-600" />
-                Product Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6 pb-8">
-              <form onSubmit={addProduct} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-600 ml-1">Title</label>
-                  <Input 
-                    placeholder="e.g. Monthly SEO Package" 
-                    value={newProduct.name}
-                    onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-600 ml-1">Price (₹)</label>
-                    <Input 
-                      type="number"
-                      placeholder="0.00" 
-                      value={newProduct.price}
-                      onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                    />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        {/* Form Panel Overlay */}
+        <AnimatePresence>
+          {isFormVisible && (
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setIsFormVisible(false)}
+                className="form-overlay"
+              />
+              <motion.div 
+                initial={{ x: '100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                className="form-panel"
+              >
+                <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <PlusCircle className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-black text-slate-900 leading-none">New Product</h2>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Catalog Expansion</p>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-600 ml-1">Category</label>
-                    <select 
-                      className="w-full h-11 px-4 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-                      value={newProduct.category}
-                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                    >
-                      <option>Service</option>
-                      <option>Product</option>
-                      <option>Subscription</option>
-                    </select>
-                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => setIsFormVisible(false)} className="rounded-full hover:bg-red-50 group">
+                    <Trash2 className="w-5 h-5 text-slate-300 group-hover:text-red-500 transition-colors" />
+                  </Button>
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-slate-600 ml-1">Description</label>
-                  <textarea 
-                    placeholder="Briefly describe the offering..." 
-                    className="w-full min-h-[120px] p-4 rounded-xl border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-all placeholder:text-slate-300"
-                    value={newProduct.description}
-                    onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                  />
-                </div>
-                <Button type="submit" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-lg font-bold group">
-                  Add to Inventory <ArrowUpRight className="w-4 h-4 ml-2 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Right Column: List */}
-        <div className="xl:col-span-8 space-y-8">
-          <div className="bg-white p-2 rounded-2xl shadow-lg ring-1 ring-slate-100 flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <form onSubmit={addProduct} className="space-y-8 flex-1">
+                  <div className="space-y-6">
+                    <div className="group space-y-2">
+                      <label className="form-label group-focus-within:form-label-active">Product Title</label>
+                      <div className="form-input-container">
+                        <Tag className="form-input-icon" />
+                        <Input 
+                          placeholder="e.g. Premium Consulting Package" 
+                          value={newProduct.name}
+                          className="form-input-field text-lg"
+                          onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="group space-y-2">
+                        <label className="form-label">Base Price ($)</label>
+                        <div className="form-input-container">
+                          <DollarSign className="form-input-icon" />
+                          <Input 
+                            type="number"
+                            placeholder="0.00" 
+                            value={newProduct.price}
+                            className="form-input-field"
+                            onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                          />
+                        </div>
+                      </div>
+                      <div className="group space-y-2">
+                        <label className="form-label">Category</label>
+                        <select 
+                          className="form-select-field"
+                          value={newProduct.category}
+                          onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                        >
+                          <option>Service</option>
+                          <option>Physical Product</option>
+                          <option>Digital Goods</option>
+                          <option>Subscription</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="group space-y-2">
+                      <label className="form-label">Description</label>
+                      <div className="relative">
+                        <textarea 
+                          placeholder="Explain the features and value proposition..." 
+                          className="form-textarea-field"
+                          value={newProduct.description}
+                          onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                        />
+                        <div className="absolute right-5 bottom-5">
+                          <Box className="w-5 h-5 text-slate-100 dark:text-slate-800" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-10 mt-auto">
+                    <Button type="submit" className="w-full h-16 bg-slate-900 hover:bg-black text-white rounded-2xl transition-all shadow-xl font-bold text-lg group">
+                       Add to Catalog <ArrowUpRight className="w-5 h-5 ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    </Button>
+                    <p className="text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-6">
+                      Inventory is synchronized across sessions
+                    </p>
+                  </div>
+                </form>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Main Content Area */}
+        <div className="lg:col-span-12 space-y-12">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="search-container group">
+              <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10">
+                <Search className="w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+              </div>
               <Input 
-                placeholder="Search inventory..." 
-                className="pl-12 h-14 border-none shadow-none text-lg rounded-2xl placeholder:text-slate-300"
+                placeholder="Search catalog by title or keywords..." 
+                className="search-input"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <Button variant="outline" className="filter-btn">
+              <LayoutGrid className="w-5 h-5 mr-3" /> Grid View
+            </Button>
           </div>
 
-          {filteredProducts.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-32 bg-slate-50/30 rounded-[40px] border-2 border-dashed border-slate-100">
-               <Package className="w-16 h-16 text-slate-200 mb-4" />
-               <p className="text-slate-400 font-bold italic">No items found in your catalog.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {filteredProducts.map((product, index) => (
-                <div 
-                  key={product.id} 
-                  className="group relative bg-white p-8 rounded-[32px] border border-slate-100 shadow-xl shadow-slate-200/20 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-500 overflow-hidden ring-1 ring-slate-50 animate-in fade-in zoom-in-95"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/30 rounded-bl-[80px] -mr-16 -mt-16 group-hover:bg-indigo-100/50 transition-all duration-500" />
-                  
-                  <div className="relative z-10">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className={cn(
-                        "px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest",
-                        product.category === 'Service' ? "bg-blue-50 text-blue-600" : "bg-emerald-50 text-emerald-600"
-                      )}>
-                        {product.category}
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
-                        onClick={() => deleteProduct(product.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+          <AnimatePresence mode="popLayout">
+            {filteredProducts.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="empty-state-container dark:bg-slate-900/30 dark:border-white/5"
+              >
+                 <ShoppingBag className="w-20 h-20 text-slate-200 mb-6" />
+                 <h3 className="text-3xl font-black text-slate-900 tracking-tight text-center dark:text-white">No Products Found</h3>
+                 <p className="text-slate-500 mt-2 font-medium text-lg max-w-sm text-center dark:text-slate-400">Your catalog is empty. Start adding items to generate invoices faster.</p>
+                 <Button 
+                   onClick={() => setIsFormVisible(true)}
+                   className="mt-10 h-14 px-10 rounded-2xl bg-slate-900 text-white font-bold dark:bg-primary"
+                 >
+                   Initial Setup
+                 </Button>
+              </motion.div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {filteredProducts.map((product, index) => (
+                  <motion.div 
+                    layout
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: index * 0.05 }}
+                    key={product.id} 
+                    className="glass-card flex flex-col items-stretch overflow-hidden group"
+                  >
+                    {/* Decorative Background Icon */}
+                    <div className="absolute top-0 right-0 w-40 h-40 bg-slate-50/50 rounded-bl-[100px] -mr-16 -mt-16 group-hover:bg-primary/5 transition-all duration-700 pointer-events-none flex items-center justify-center pt-8 pl-8 dark:bg-slate-800/50">
+                       <Package className="w-16 h-16 text-slate-200 group-hover:text-primary/20 group-hover:scale-125 transition-all duration-700" />
                     </div>
-
-                    <h3 className="text-2xl font-black text-slate-800 mb-3 truncate group-hover:text-indigo-600 transition-colors tracking-tight">{product.name}</h3>
                     
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-3xl font-black text-slate-900">₹{Number(product.price).toLocaleString('en-IN')}</span>
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Base Rate</span>
-                    </div>
-
-                    {product.description && (
-                      <p className="mt-5 text-sm text-slate-500 line-clamp-2 leading-relaxed h-10 font-medium opacity-80 group-hover:opacity-100 transition-opacity">
-                        {product.description}
-                      </p>
-                    )}
-
-                    <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
-                      <div className="flex -space-x-2">
-                        {[1,2,3].map(i => (
-                          <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-100" />
-                        ))}
+                    <div className="relative z-10 flex flex-col h-full">
+                      <div className="flex justify-between items-start mb-10">
+                        <div className={cn(
+                          "px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-sm",
+                          product.category === 'Service' 
+                            ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" 
+                            : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
+                        )}>
+                          {product.category}
+                        </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all dark:hover:bg-red-900/20"
+                          onClick={(e) => { e.stopPropagation(); deleteProduct(product.id); }}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </Button>
                       </div>
-                      <button className="text-indigo-600 text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 group-hover:gap-3 transition-all">
-                        Details <ArrowRight className="w-3 h-3" />
-                      </button>
+
+                      <div className="space-y-4 mb-10">
+                        <h3 className="text-2xl font-black text-slate-900 truncate group-hover:text-primary transition-colors tracking-tight leading-none dark:text-white">{product.name}</h3>
+                        
+                        <div className="flex flex-col">
+                          <span className="text-4xl font-black text-slate-950 tracking-tight dark:text-white">${Number(product.price).toLocaleString()}</span>
+                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-1.5">
+                            <Tag className="w-3 h-3" /> Standard Unit Rate
+                          </span>
+                        </div>
+
+                        {product.description && (
+                          <p className="text-sm text-slate-500 font-medium line-clamp-3 leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity pt-2 dark:text-slate-400">
+                            {product.description}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="mt-auto pt-8 border-t border-slate-50 flex items-center justify-between dark:border-white/5">
+                         <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center dark:bg-slate-800">
+                               <ShoppingBag className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Catalog Item</span>
+                         </div>
+                        
+                        <button className="flex items-center gap-2 text-xs font-black text-primary uppercase tracking-[0.2em] group-hover:gap-3 transition-all">
+                          Edit <ArrowRight className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 .invoice-preview {
-    width: 40%;
+    flex: 1;
     min-width: 400px;
     overflow-y: auto;
     height: 100vh;
@@ -22,7 +22,7 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
-    max-width: 650px;
+    max-width: 850px;
 
     box-sizing: border-box;
 }
