@@ -1,5 +1,5 @@
 import React from 'react';
-import cynoxLogo from '../../assets/cynox_logo.png';
+import cynoxLogo from '../../../../assets/cynox_logo.png';
 import './invoice.css';
 
 const Invoice = ({ data }) => {

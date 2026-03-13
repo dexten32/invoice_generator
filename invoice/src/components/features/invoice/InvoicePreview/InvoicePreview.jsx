@@ -2,7 +2,7 @@ import React from 'react';
 import Invoice from '../InvoiceDetails/invoice';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { Button, DownloadTrigger, FormatByte } from '@chakra-ui/react';
+import { Button } from '@/components/ui/button';
 import { LuFileDown } from 'react-icons/lu';
 import './InvoicePreview.css';
 
@@ -38,34 +38,19 @@ const InvoicePreview = ({ data }) => {
         }, 100);
     };
 
-    // Simulated size for the FormatByte component
-    const pdfSize = 124500;
-
     return (
         <div className="invoice-preview">
             <div className="preview-header-wrapper">
                 <div className="preview-header">
                     <h2 className="preview-heading">Preview</h2>
-                    <DownloadTrigger
-                        data={new Blob([""], { type: "application/pdf" })}
-                        fileName="invoice.pdf"
-                        mimeType="application/pdf"
-                        asChild
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={downloadPDF}
+                        className="gap-2 px-4 hover:bg-slate-100 text-slate-700 font-bold border-slate-200"
                     >
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={downloadPDF}
-                            className="gap-2 px-4 hover:bg-muted hover:text-foreground"
-                            colorPalette="gray"
-                            color="gray.700"
-                            fontWeight="bold"
-
-                        >
-                            <LuFileDown size="18px" /> Download (
-                            <FormatByte value={pdfSize} unitDisplay="narrow" />)
-                        </Button>
-                    </DownloadTrigger>
+                        <LuFileDown size="18px" /> Export PDF
+                    </Button>
                 </div>
             </div>
             <Invoice data={data} />
