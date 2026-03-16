@@ -1,21 +1,26 @@
 import React, { useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, Trash2, Package, Tag, DollarSign, List, Search, 
-  Filter, ArrowUpRight, ShoppingBag, ArrowRight,
-  PlusCircle, LayoutGrid, Box, Archive, Info
+import {
+  Plus, Trash2, Tag, DollarSign, Search,
+  Filter, ArrowUpRight, ShoppingBag,
+  PlusCircle, Box, Archive, ChevronRight, Package
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
+
+const CATEGORIES = ['Service', 'Physical Product', 'Digital Goods', 'Subscription'];
+
+const CATEGORY_STYLES = {
+  'Service':          { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe' },
+  'Physical Product': { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0' },
+  'Digital Goods':    { bg: '#faf5ff', color: '#7c3aed', border: '#ddd6fe' },
+  'Subscription':     { bg: '#fff7ed', color: '#ea580c', border: '#fed7aa' },
+};
 
 const ProductsPage = () => {
   const [products, setProducts] = useLocalStorage('products', []);
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: 'Service' });
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormVisible, setIsFormVisible] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
 
   const addProduct = (e) => {
     e.preventDefault();
@@ -27,263 +32,425 @@ const ProductsPage = () => {
 
   const deleteProduct = (id) => {
     setProducts(products.filter(p => p.id !== id));
+    if (expandedId === id) setExpandedId(null);
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    p.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(p =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="space-y-12 pb-20">
-      {/* Header Section */}
-      <div className="page-header-container">
-        <div className="page-title-group">
-          <div className="page-subheader">
-            <Box className="w-4 h-4" />
-            Inventory Control
-          </div>
-          <h1 className="page-title">
-            Product <span>Hub</span>
-          </h1>
-          <p className="page-description">
-            Streamline your catalog management with high-precision inventory tracking.
-          </p>
+    <div style={s.page}>
+
+      {/* ── Header ─────────────────────────────────── */}
+      <div style={s.header}>
+        <div>
+          <div style={s.eyebrow}><Box size={13} strokeWidth={2.5} /> Inventory Control</div>
+          <h1 style={s.title}>Product Catalog</h1>
+          <p style={s.subtitle}>Manage your catalog items and pricing for fast invoice generation.</p>
         </div>
-        
-        <div className="action-button-group">
-          <Button variant="outline" className="btn-secondary">
-            <Archive className="w-4 h-4 mr-2" /> Categories
-          </Button>
-          <Button 
-            onClick={() => setIsFormVisible(true)}
-            className="btn-primary"
-          >
-            <PlusCircle className="w-5 h-5 mr-2" /> Create Product
-          </Button>
+        <div style={s.headerActions}>
+          <button style={s.btnOutline}>
+            <Archive size={14} strokeWidth={2} style={{ marginRight: 6 }} /> Categories
+          </button>
+          <button style={s.btnPrimary} onClick={() => setIsFormVisible(true)}>
+            <PlusCircle size={15} strokeWidth={2.5} style={{ marginRight: 6 }} /> Create Product
+          </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-        {/* Form Panel Overlay */}
-        <AnimatePresence>
-          {isFormVisible && (
-            <>
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsFormVisible(false)}
-                className="form-overlay"
-              />
-              <motion.div 
-                initial={{ x: '100%' }}
-                animate={{ x: 0 }}
-                exit={{ x: '100%' }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="form-panel"
-              >
-                <div className="flex justify-between items-center mb-10 pb-6 border-b border-slate-50">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <PlusCircle className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-black text-slate-900 leading-none">New Product</h2>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">Catalog Expansion</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="icon" onClick={() => setIsFormVisible(false)} className="rounded-full hover:bg-red-50 group">
-                    <Trash2 className="w-5 h-5 text-slate-300 group-hover:text-red-500 transition-colors" />
-                  </Button>
-                </div>
+      {/* ── Slide-over Form ─────────────────────────── */}
+      {isFormVisible && (
+        <>
+          <div style={s.overlay} onClick={() => setIsFormVisible(false)} />
+          <div style={s.slidePanel}>
+            <div style={s.panelHeader}>
+              <div>
+                <h2 style={s.panelTitle}>New Product</h2>
+                <p style={s.panelSub}>Catalog Expansion</p>
+              </div>
+              <button style={s.closeBtn} onClick={() => setIsFormVisible(false)}>✕</button>
+            </div>
 
-                <form onSubmit={addProduct} className="space-y-8 flex-1">
-                  <div className="space-y-6">
-                    <div className="group space-y-2">
-                      <label className="form-label group-focus-within:form-label-active">Product Title</label>
-                      <div className="form-input-container">
-                        <Tag className="form-input-icon" />
-                        <Input 
-                          placeholder="e.g. Premium Consulting Package" 
-                          value={newProduct.name}
-                          className="form-input-field text-lg"
-                          onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="group space-y-2">
-                        <label className="form-label">Base Price ($)</label>
-                        <div className="form-input-container">
-                          <DollarSign className="form-input-icon" />
-                          <Input 
-                            type="number"
-                            placeholder="0.00" 
-                            value={newProduct.price}
-                            className="form-input-field"
-                            onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+            <form onSubmit={addProduct} style={s.formScroll}>
+              <div>
+                <label style={s.label}>Product Title <span style={{ color: '#ef4444' }}>*</span></label>
+                <div style={{ position: 'relative', marginTop: 5 }}>
+                  <Tag size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                  <input
+                    style={{ ...s.input, paddingLeft: 34 }}
+                    placeholder="e.g. Premium Consulting Package"
+                    value={newProduct.name}
+                    required
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={s.label}>Base Price (₹) <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div style={{ position: 'relative', marginTop: 5 }}>
+                    <DollarSign size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                    <input
+                      style={{ ...s.input, paddingLeft: 34 }}
+                      type="number"
+                      placeholder="0.00"
+                      value={newProduct.price}
+                      required
+                      onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label style={s.label}>Category</label>
+                  <select
+                    style={{ ...s.input, marginTop: 5, cursor: 'pointer' }}
+                    value={newProduct.category}
+                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+                  >
+                    {CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={s.label}>Description</label>
+                <textarea
+                  style={{ ...s.input, marginTop: 5, height: 100, resize: 'vertical', lineHeight: 1.6 }}
+                  placeholder="Features, scope, and value proposition…"
+                  value={newProduct.description}
+                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+                />
+              </div>
+
+              <button type="submit" style={{ ...s.submitBtn, marginTop: 8 }}>
+                Add to Catalog <ArrowUpRight size={14} style={{ marginLeft: 6 }} />
+              </button>
+            </form>
+          </div>
+        </>
+      )}
+
+      {/* ── Search ──────────────────────────────────── */}
+      <div style={s.searchRow}>
+        <div style={{ position: 'relative', flex: 1 }}>
+          <Search size={15} color="#94a3b8" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+          <input
+            style={s.searchInput}
+            placeholder="Search by product name or description…"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <button style={s.filterBtn}>
+          <Filter size={14} strokeWidth={2} style={{ marginRight: 6 }} /> Filters
+        </button>
+      </div>
+
+      {/* ── Product Table ───────────────────────────── */}
+      <div style={s.tableWrap}>
+        {filteredProducts.length === 0 ? (
+          <div style={s.empty}>
+            <div style={s.emptyIcon}><ShoppingBag size={28} color="#cbd5e1" /></div>
+            <p style={s.emptyTitle}>No products found</p>
+            <p style={s.emptySub}>Create your first catalog item to speed up invoice generation.</p>
+            <button style={s.btnPrimary} onClick={() => setIsFormVisible(true)}>
+              <Plus size={14} style={{ marginRight: 6 }} /> Create Product
+            </button>
+          </div>
+        ) : (
+          <table style={s.table}>
+            <thead>
+              <tr>
+                <th style={{ ...s.th, width: '35%' }}>Product</th>
+                <th style={{ ...s.th, width: '18%' }}>Category</th>
+                <th style={{ ...s.th, width: '18%' }}>Unit Price</th>
+                <th style={{ ...s.th, width: '19%' }}>Description</th>
+                <th style={{ ...s.th, width: '10%', textAlign: 'right' }}>ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts.map((product) => {
+                const isExpanded = expandedId === product.id;
+                const cat = CATEGORY_STYLES[product.category] || CATEGORY_STYLES['Service'];
+                return (
+                  <React.Fragment key={product.id}>
+                    <tr
+                      style={{
+                        ...s.row,
+                        background: isExpanded ? '#f8fafc' : 'white',
+                        borderBottom: isExpanded ? 'none' : '1px solid #f1f5f9',
+                      }}
+                      onClick={() => setExpandedId(prev => prev === product.id ? null : product.id)}
+                    >
+                      {/* Product Name */}
+                      <td style={s.td}>
+                        <div style={s.nameCell}>
+                          <div style={s.productIcon}>
+                            <Package size={14} color="#64748b" />
+                          </div>
+                          <span style={s.productName}>{product.name}</span>
+                        </div>
+                      </td>
+
+                      {/* Category */}
+                      <td style={s.td}>
+                        <span style={{ ...s.catBadge, background: cat.bg, color: cat.color, border: `1px solid ${cat.border}` }}>
+                          {product.category}
+                        </span>
+                      </td>
+
+                      {/* Price */}
+                      <td style={s.td}>
+                        <span style={s.price}>₹{Number(product.price).toLocaleString('en-IN')}</span>
+                      </td>
+
+                      {/* Description preview */}
+                      <td style={s.td}>
+                        <span style={s.descPreview}>
+                          {product.description ? product.description.slice(0, 48) + (product.description.length > 48 ? '…' : '') : '—'}
+                        </span>
+                      </td>
+
+                      {/* ID + chevron */}
+                      <td style={{ ...s.td, textAlign: 'right' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
+                          <span style={s.idBadge}>{String(product.id).slice(-5)}</span>
+                          <ChevronRight
+                            size={14}
+                            color="#cbd5e1"
+                            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
                           />
                         </div>
-                      </div>
-                      <div className="group space-y-2">
-                        <label className="form-label">Category</label>
-                        <select 
-                          className="form-select-field"
-                          value={newProduct.category}
-                          onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                        >
-                          <option>Service</option>
-                          <option>Physical Product</option>
-                          <option>Digital Goods</option>
-                          <option>Subscription</option>
-                        </select>
-                      </div>
-                    </div>
+                      </td>
+                    </tr>
 
-                    <div className="group space-y-2">
-                      <label className="form-label">Description</label>
-                      <div className="relative">
-                        <textarea 
-                          placeholder="Explain the features and value proposition..." 
-                          className="form-textarea-field"
-                          value={newProduct.description}
-                          onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                        />
-                        <div className="absolute right-5 bottom-5">
-                          <Box className="w-5 h-5 text-slate-100 dark:text-slate-800" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="pt-10 mt-auto">
-                    <Button type="submit" className="w-full h-16 bg-slate-900 hover:bg-black text-white rounded-2xl transition-all shadow-xl font-bold text-lg group">
-                       Add to Catalog <ArrowUpRight className="w-5 h-5 ml-2 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                    </Button>
-                    <p className="text-center text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mt-6">
-                      Inventory is synchronized across sessions
-                    </p>
-                  </div>
-                </form>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
-
-        {/* Main Content Area */}
-        <div className="lg:col-span-12 space-y-12">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="search-container group">
-              <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none z-10">
-                <Search className="w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
-              </div>
-              <Input 
-                placeholder="Search catalog by title or keywords..." 
-                className="search-input"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Button variant="outline" className="filter-btn">
-              <LayoutGrid className="w-5 h-5 mr-3" /> Grid View
-            </Button>
-          </div>
-
-          <AnimatePresence mode="popLayout">
-            {filteredProducts.length === 0 ? (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="empty-state-container dark:bg-slate-900/30 dark:border-white/5"
-              >
-                 <ShoppingBag className="w-20 h-20 text-slate-200 mb-6" />
-                 <h3 className="text-3xl font-black text-slate-900 tracking-tight text-center dark:text-white">No Products Found</h3>
-                 <p className="text-slate-500 mt-2 font-medium text-lg max-w-sm text-center dark:text-slate-400">Your catalog is empty. Start adding items to generate invoices faster.</p>
-                 <Button 
-                   onClick={() => setIsFormVisible(true)}
-                   className="mt-10 h-14 px-10 rounded-2xl bg-slate-900 text-white font-bold dark:bg-primary"
-                 >
-                   Initial Setup
-                 </Button>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                {filteredProducts.map((product, index) => (
-                  <motion.div 
-                    layout
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: index * 0.05 }}
-                    key={product.id} 
-                    className="glass-card flex flex-col items-stretch overflow-hidden group"
-                  >
-                    {/* Decorative Background Icon */}
-                    <div className="absolute top-0 right-0 w-40 h-40 bg-slate-50/50 rounded-bl-[100px] -mr-16 -mt-16 group-hover:bg-primary/5 transition-all duration-700 pointer-events-none flex items-center justify-center pt-8 pl-8 dark:bg-slate-800/50">
-                       <Package className="w-16 h-16 text-slate-200 group-hover:text-primary/20 group-hover:scale-125 transition-all duration-700" />
-                    </div>
-                    
-                    <div className="relative z-10 flex flex-col h-full">
-                      <div className="flex justify-between items-start mb-10">
-                        <div className={cn(
-                          "px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-sm",
-                          product.category === 'Service' 
-                            ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" 
-                            : "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400"
-                        )}>
-                          {product.category}
-                        </div>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="text-slate-200 hover:text-red-500 hover:bg-red-50 rounded-2xl transition-all dark:hover:bg-red-900/20"
-                          onClick={(e) => { e.stopPropagation(); deleteProduct(product.id); }}
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </Button>
-                      </div>
-
-                      <div className="space-y-4 mb-10">
-                        <h3 className="text-2xl font-black text-slate-900 truncate group-hover:text-primary transition-colors tracking-tight leading-none dark:text-white">{product.name}</h3>
-                        
-                        <div className="flex flex-col">
-                          <span className="text-4xl font-black text-slate-950 tracking-tight dark:text-white">${Number(product.price).toLocaleString()}</span>
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1.5 flex items-center gap-1.5">
-                            <Tag className="w-3 h-3" /> Standard Unit Rate
-                          </span>
-                        </div>
-
-                        {product.description && (
-                          <p className="text-sm text-slate-500 font-medium line-clamp-3 leading-relaxed opacity-70 group-hover:opacity-100 transition-opacity pt-2 dark:text-slate-400">
-                            {product.description}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="mt-auto pt-8 border-t border-slate-50 flex items-center justify-between dark:border-white/5">
-                         <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-xl bg-slate-950 flex items-center justify-center dark:bg-slate-800">
-                               <ShoppingBag className="w-4 h-4 text-white" />
+                    {/* Expanded Panel */}
+                    {isExpanded && (
+                      <tr style={{ background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
+                        <td colSpan={5} style={{ padding: '0 20px 20px' }}>
+                          <div style={s.expandedBody}>
+                            <div style={s.detailGrid}>
+                              <DetailCard label="Full Description" value={product.description || 'No description provided.'} />
+                              <DetailCard label="Unit Price" value={`₹${Number(product.price).toLocaleString('en-IN')}`} mono />
+                              <DetailCard label="Category" value={product.category} />
                             </div>
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Catalog Item</span>
-                         </div>
-                        
-                        <button className="flex items-center gap-2 text-xs font-black text-primary uppercase tracking-[0.2em] group-hover:gap-3 transition-all">
-                          Edit <ArrowRight className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </AnimatePresence>
-        </div>
+                            <div style={s.expandedActions}>
+                              <button
+                                style={s.deleteBtn}
+                                onClick={(e) => { e.stopPropagation(); deleteProduct(product.id); }}
+                              >
+                                <Trash2 size={13} style={{ marginRight: 6 }} /> Remove Item
+                              </button>
+                              <button style={s.editBtn} onClick={(e) => e.stopPropagation()}>
+                                Edit Product <ArrowUpRight size={13} style={{ marginLeft: 6 }} />
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+
+        {filteredProducts.length > 0 && (
+          <div style={s.tableFooter}>
+            {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} in catalog
+          </div>
+        )}
       </div>
     </div>
   );
+};
+
+const DetailCard = ({ label, value, mono }) => (
+  <div style={dc.card}>
+    <p style={dc.label}>{label}</p>
+    <p style={{ ...dc.value, fontFamily: mono ? 'monospace' : 'inherit' }}>{value}</p>
+  </div>
+);
+
+const dc = {
+  card: { background: 'white', border: '1px solid #e2e8f0', borderRadius: 8, padding: '12px 14px' },
+  label: { fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#94a3b8', margin: '0 0 6px' },
+  value: { fontSize: 13.5, fontWeight: 600, color: '#334155', margin: 0, wordBreak: 'break-word', lineHeight: 1.5 },
+};
+
+const s = {
+  page: {
+    maxWidth: 1080,
+    margin: '0 auto',
+    padding: '40px 32px 80px',
+    fontFamily: '"DM Sans", system-ui, sans-serif',
+    color: '#0f172a',
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 40,
+    flexWrap: 'wrap',
+    gap: 20,
+  },
+  eyebrow: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+    color: '#64748b',
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 800,
+    letterSpacing: '-0.02em',
+    margin: '0 0 6px',
+    color: '#0f172a',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#64748b',
+    margin: 0,
+  },
+  headerActions: { display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0 },
+  btnOutline: {
+    display: 'inline-flex', alignItems: 'center',
+    padding: '9px 16px', fontSize: 13, fontWeight: 600,
+    border: '1px solid #e2e8f0', borderRadius: 8,
+    background: 'white', color: '#334155', cursor: 'pointer',
+  },
+  btnPrimary: {
+    display: 'inline-flex', alignItems: 'center',
+    padding: '9px 18px', fontSize: 13, fontWeight: 700,
+    border: 'none', borderRadius: 8,
+    background: '#0f172a', color: 'white', cursor: 'pointer',
+  },
+  searchRow: { display: 'flex', gap: 10, marginBottom: 24 },
+  searchInput: {
+    width: '100%', padding: '10px 14px 10px 38px',
+    fontSize: 14, border: '1px solid #e2e8f0', borderRadius: 8,
+    outline: 'none', color: '#0f172a', background: 'white', boxSizing: 'border-box',
+  },
+  filterBtn: {
+    display: 'inline-flex', alignItems: 'center',
+    padding: '9px 16px', fontSize: 13, fontWeight: 600,
+    border: '1px solid #e2e8f0', borderRadius: 8,
+    background: 'white', color: '#475569', cursor: 'pointer', flexShrink: 0,
+  },
+  tableWrap: { border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', background: 'white' },
+  table: { width: '100%', borderCollapse: 'collapse' },
+  th: {
+    padding: '11px 20px', fontSize: 11, fontWeight: 700,
+    letterSpacing: '0.08em', textTransform: 'uppercase',
+    color: '#94a3b8', background: '#f8fafc',
+    borderBottom: '1px solid #e2e8f0', textAlign: 'left',
+  },
+  row: { cursor: 'pointer' },
+  td: { padding: '14px 20px', verticalAlign: 'middle' },
+  nameCell: { display: 'flex', alignItems: 'center', gap: 12 },
+  productIcon: {
+    width: 32, height: 32, borderRadius: 8,
+    background: '#f1f5f9', border: '1px solid #e2e8f0',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  productName: { fontSize: 14, fontWeight: 600, color: '#0f172a' },
+  catBadge: {
+    display: 'inline-flex', alignItems: 'center',
+    fontSize: 11, fontWeight: 700,
+    letterSpacing: '0.04em', borderRadius: 20,
+    padding: '3px 10px',
+  },
+  price: { fontSize: 14, fontWeight: 700, color: '#0f172a', fontVariantNumeric: 'tabular-nums' },
+  descPreview: { fontSize: 13, color: '#64748b' },
+  idBadge: {
+    fontSize: 11, fontWeight: 700, fontFamily: 'monospace',
+    color: '#94a3b8', background: '#f1f5f9',
+    padding: '3px 8px', borderRadius: 5, letterSpacing: '0.05em',
+  },
+  expandedBody: { paddingTop: 16, borderTop: '1px solid #e2e8f0', marginTop: 4 },
+  detailGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+    gap: 12, marginBottom: 16,
+  },
+  expandedActions: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+    flexWrap: 'wrap', gap: 10, paddingTop: 12, borderTop: '1px solid #f1f5f9',
+  },
+  deleteBtn: {
+    display: 'inline-flex', alignItems: 'center',
+    padding: '8px 14px', fontSize: 13, fontWeight: 600,
+    border: '1px solid #fecaca', borderRadius: 8,
+    background: '#fff5f5', color: '#dc2626', cursor: 'pointer',
+  },
+  editBtn: {
+    display: 'inline-flex', alignItems: 'center',
+    padding: '8px 18px', fontSize: 13, fontWeight: 700,
+    border: 'none', borderRadius: 8,
+    background: '#0f172a', color: 'white', cursor: 'pointer',
+  },
+  tableFooter: {
+    padding: '12px 20px', fontSize: 12, color: '#94a3b8',
+    fontWeight: 500, borderTop: '1px solid #f1f5f9', background: '#f8fafc',
+  },
+  empty: {
+    display: 'flex', flexDirection: 'column', alignItems: 'center',
+    justifyContent: 'center', padding: '80px 20px', gap: 12,
+  },
+  emptyIcon: {
+    width: 60, height: 60, borderRadius: 14,
+    background: '#f8fafc', border: '1px solid #e2e8f0',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 4,
+  },
+  emptyTitle: { fontSize: 17, fontWeight: 700, color: '#1e293b', margin: 0 },
+  emptySub: { fontSize: 14, color: '#94a3b8', margin: '0 0 8px' },
+  overlay: {
+    position: 'fixed', inset: 0,
+    background: 'rgba(15,23,42,0.35)', backdropFilter: 'blur(2px)', zIndex: 40,
+  },
+  slidePanel: {
+    position: 'fixed', top: 0, right: 0, bottom: 0, width: 420,
+    background: 'white', zIndex: 50, display: 'flex', flexDirection: 'column',
+    boxShadow: '-8px 0 40px rgba(15,23,42,0.12)', padding: '28px 28px 0',
+  },
+  panelHeader: {
+    display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+    paddingBottom: 20, borderBottom: '1px solid #f1f5f9', marginBottom: 24,
+  },
+  panelTitle: { fontSize: 20, fontWeight: 800, color: '#0f172a', margin: '0 0 3px', letterSpacing: '-0.01em' },
+  panelSub: { fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.12em', margin: 0 },
+  closeBtn: {
+    width: 32, height: 32, border: '1px solid #e2e8f0', borderRadius: 8,
+    background: 'white', cursor: 'pointer', fontSize: 14, color: '#64748b',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+  },
+  formScroll: {
+    flex: 1, overflowY: 'auto', paddingBottom: 40,
+    display: 'flex', flexDirection: 'column', gap: 14,
+  },
+  label: { fontSize: 12, fontWeight: 600, color: '#475569', letterSpacing: '0.01em' },
+  input: {
+    width: '100%', padding: '10px 12px', fontSize: 13.5,
+    border: '1px solid #e2e8f0', borderRadius: 8, outline: 'none',
+    color: '#0f172a', background: 'white', boxSizing: 'border-box',
+  },
+  submitBtn: {
+    width: '100%', padding: '13px',
+    fontSize: 14, fontWeight: 700,
+    border: 'none', borderRadius: 10,
+    background: '#0f172a', color: 'white',
+    cursor: 'pointer', display: 'inline-flex',
+    alignItems: 'center', justifyContent: 'center',
+  },
 };
 
 export default ProductsPage;
