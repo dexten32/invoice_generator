@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { LuFileDown } from 'react-icons/lu';
 import './InvoicePreview.css';
 
-const InvoicePreview = ({ data }) => {
+const InvoicePreview = ({ data, onReset }) => {
+    const isReadyToExport = data?.client?.id && data?.items?.some(item => item.serviceId);
     const downloadPDF = (e) => {
         if (e) e.preventDefault();
 
@@ -33,7 +34,17 @@ const InvoicePreview = ({ data }) => {
                 const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                pdf.save('invoice.pdf');
+                
+                // Format the filename: CompanyName-InvoiceNumber.pdf
+                const clientName = data?.client?.name || 'Client';
+                const invoiceNum = data?.meta?.invoiceNumber || 'Invoice';
+                const safeClientName = clientName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const fileName = `${safeClientName}-${invoiceNum}.pdf`;
+                
+                pdf.save(fileName);
+                
+                // Trigger the reset callback to clear details for a new invoice
+                if (onReset) onReset();
             });
         }, 100);
     };
@@ -47,7 +58,11 @@ const InvoicePreview = ({ data }) => {
                         variant="outline"
                         size="sm"
                         onClick={downloadPDF}
-                        className="gap-2 px-4 hover:bg-slate-100 text-slate-700 font-bold border-slate-200"
+                        disabled={!isReadyToExport}
+                        className={`gap-2 px-4 font-bold ${
+                            isReadyToExport ? 'hover:bg-slate-100 text-slate-700 border-slate-200' : 'text-slate-400 border-slate-100 bg-slate-50 cursor-not-allowed'
+                        }`}
+                        title={!isReadyToExport ? "Select a client and at least one item to export" : "Export to PDF"}
                     >
                         <LuFileDown size="18px" /> Export PDF
                     </Button>

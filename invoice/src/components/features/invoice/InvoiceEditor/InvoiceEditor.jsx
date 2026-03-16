@@ -6,6 +6,7 @@ import {
   LuChevronRight,
 } from 'react-icons/lu';
 import { useApiData } from '@/hooks/useApiData';
+import defaultLogo from '@/assets/cynox_logo.png';
 import './InvoiceEditor.css';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -92,7 +93,7 @@ const InvoiceEditor = ({ data, onChange }) => {
           number: c.gstNumber || prev.business.number,
           address1: addr1 || prev.business.address1,
           address2: addr2 || prev.business.address2,
-          logo: c.logo || prev.business.logo,
+          logo: c.logo || prev.business.logo || defaultLogo,
           email: c.email || prev.business.email,
           website: c.website || prev.business.website,
         }
@@ -208,9 +209,9 @@ const InvoiceEditor = ({ data, onChange }) => {
             onClick={() => isEditingBusiness && document.getElementById('logo-input').click()}
             style={{ cursor: isEditingBusiness ? 'pointer' : 'default', opacity: isEditingBusiness ? 1 : 0.8 }}
           >
-            {data.business.logo ? (
+            {data.business.logo || defaultLogo ? (
               <div style={{ position: 'relative' }}>
-                <img src={data.business.logo} alt="Logo" className="ie-logo-img" />
+                <img src={data.business.logo || defaultLogo} alt="Logo" className="ie-logo-img" />
                 {isEditingBusiness && <div className="ie-logo-overlay"><LuUpload size={12} /> Change</div>}
               </div>
             ) : (

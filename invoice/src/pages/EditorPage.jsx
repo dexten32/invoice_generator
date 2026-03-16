@@ -12,7 +12,12 @@ const EditorPage = () => {
         <InvoiceEditor data={invoiceData} onChange={setInvoiceData} />
       </div>
       <div className="w-full lg:w-1/2 sticky top-8">
-        <InvoicePreview data={invoiceData} />
+        <InvoicePreview data={invoiceData} onReset={() => setInvoiceData({
+            ...invoiceData,
+            client: { id: '', name: '', address1: '', address2: '', phone: '', email: '', gstNumber: '' },
+            meta: { ...invoiceData.meta, invoiceNumber: '' }, // This forces a refetch of the next invoice number
+            items: [{ id: Date.now(), serviceId: '', description: '', longDescription: '', rate: 0, quantity: 1, gstRate: 0 }]
+        })} />
       </div>
     </div>
   );
