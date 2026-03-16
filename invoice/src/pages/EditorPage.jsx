@@ -12,12 +12,19 @@ const EditorPage = () => {
         <InvoiceEditor data={invoiceData} onChange={setInvoiceData} />
       </div>
       <div className="w-full lg:w-1/2 sticky top-8">
-        <InvoicePreview data={invoiceData} onReset={() => setInvoiceData({
-            ...invoiceData,
-            client: { id: '', name: '', address1: '', address2: '', phone: '', email: '', gstNumber: '' },
-            meta: { ...invoiceData.meta, invoiceNumber: '' }, // This forces a refetch of the next invoice number
-            items: [{ id: Date.now(), serviceId: '', description: '', longDescription: '', rate: 0, quantity: 1, gstRate: 0 }]
-        })} />
+        <InvoicePreview data={invoiceData} onReset={() => {
+            fetch('http://localhost:4000/api/invoices/next-number')
+              .then(res => res.json())
+              .then(resData => {
+                  setInvoiceData(prev => ({
+                      ...prev,
+                      client: { id: '', name: '', address1: '', address2: '', phone: '', email: '', gstNumber: '' },
+                      meta: { ...prev.meta, invoiceNumber: resData.nextNumber || '' },
+                      items: [{ id: Date.now(), serviceId: '', description: '', longDescription: '', rate: 0, quantity: 1, gstRate: 0 }]
+                  }));
+              })
+              .catch(err => console.error('Failed to refetch next invoice number:', err));
+        }} />
       </div>
     </div>
   );
