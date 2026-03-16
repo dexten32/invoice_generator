@@ -15,6 +15,7 @@ const Sidebar = () => {
 
   const navItems = [
     { name: 'Invoice Editor', path: '/', icon: FileText },
+    { name: 'Invoices',       path: '/invoices',  icon: LayoutDashboard },
     { name: 'Customers',      path: '/customers', icon: Users },
     { name: 'Products',       path: '/products',  icon: Package },
   ];

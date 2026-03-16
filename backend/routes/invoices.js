@@ -151,4 +151,28 @@ router.post('/', async (req, res) => {
   }
 });
 
+/**
+ * GET /api/invoices
+ * Returns a list of all invoices.
+ */
+router.get('/', async (req, res) => {
+  try {
+    const invoices = await prisma.invoice.findMany({
+      include: {
+        customer: true,
+        company: true,
+        items: true,
+      },
+      orderBy: {
+        issueDate: 'desc',
+      },
+    });
+
+    return res.status(200).json({ invoices });
+  } catch (err) {
+    console.error('[Invoices] GET error:', err);
+    return res.status(500).json({ message: 'Failed to fetch invoices.' });
+  }
+});
+
 module.exports = router;

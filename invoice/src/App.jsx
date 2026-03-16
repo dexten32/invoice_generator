@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import EditorPage from './pages/EditorPage';
 import CustomersPage from './pages/CustomersPage';
 import ProductsPage from './pages/ProductsPage';
+import InvoicesPage from './pages/InvoicesPage';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route index element={<EditorPage />} />
             <Route path="customers" element={<CustomersPage />} />
             <Route path="products" element={<ProductsPage />} />
+            <Route path="invoices" element={<InvoicesPage />} />
           </Route>
         </Routes>
       </Router>

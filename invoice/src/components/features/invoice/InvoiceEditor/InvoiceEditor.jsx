@@ -428,18 +428,14 @@ const InvoiceEditor = ({ data, onChange }) => {
                   />
                 </Field>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr', gap: 8 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 2fr', gap: 8 }}>
                   <Field label="Rate (₹)">
-                    <input className="ie-input" style={{ textAlign: 'right' }} type="number" value={item.rate}
-                      onChange={e => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)} />
+                    <input className="ie-input" style={{ textAlign: 'right', background: '#f8fafc', color: '#64748b', cursor: 'default' }} type="number" value={item.rate}
+                      readOnly />
                   </Field>
                   <Field label="Qty">
                     <input className="ie-input" style={{ textAlign: 'center' }} type="number" value={item.quantity}
                       onChange={e => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} />
-                  </Field>
-                  <Field label="GST %">
-                    <input className="ie-input" style={{ textAlign: 'center' }} type="number" value={item.gstRate}
-                      onChange={e => handleItemChange(item.id, 'gstRate', parseFloat(e.target.value) || 0)} />
                   </Field>
                   <Field label="Amount">
                     <div className="ie-amount-box">
@@ -448,11 +444,8 @@ const InvoiceEditor = ({ data, onChange }) => {
                   </Field>
                 </div>
 
-                {item.gstRate > 0 && (
-                  <div style={{ textAlign: 'right', fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
-                    + ₹{((item.rate * item.quantity * item.gstRate) / 100).toLocaleString('en-IN')} GST ({item.gstRate}%)
-                  </div>
-                )}
+                {/* Removed per-item GST display as per user request */}
+
               </div>
             ))}
           </div>
@@ -464,7 +457,7 @@ const InvoiceEditor = ({ data, onChange }) => {
           <div className="ie-divider" />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <Field label="Global Tax Rate (%)">
+            <Field label="GST (%)">
               <input className="ie-input" type="number" value={data.taxRate} placeholder="18"
                 onChange={e => onChange(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))} />
             </Field>

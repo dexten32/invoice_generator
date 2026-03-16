@@ -18,7 +18,7 @@ export const DEFAULT_INVOICE_DATA = {
         gstNumber: '',
     },
     meta: {
-        invoiceNumber: 'INV0001',
+        invoiceNumber: '',
         date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
         dueDate: 'On Receipt'
     },
