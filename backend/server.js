@@ -5,7 +5,7 @@ const authRoutes = require('./routes/auth');
 const customerRoutes = require('./routes/customers');
 const serviceRoutes = require('./routes/services');
 const companyRoutes = require('./routes/companies');
-
+const invoiceRoutes = require('./routes/invoices');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -18,13 +18,21 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+// --- Logger ---
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
 
 // --- Routes ---
 app.use('/api/auth', authRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/companies', companyRoutes);
+app.use('/api/invoices', invoiceRoutes);
 
 
 // --- Health Check ---

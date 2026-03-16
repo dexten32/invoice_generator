@@ -7,6 +7,8 @@ import {
   PlusCircle, Box, Archive, ChevronRight, Package
 } from 'lucide-react';
 
+import { useApiData } from '../hooks/useApiData';
+
 const CATEGORIES = ['Service', 'Physical Product', 'Digital Goods', 'Subscription'];
 
 const CATEGORY_STYLES = {
@@ -17,23 +19,59 @@ const CATEGORY_STYLES = {
 };
 
 const ProductsPage = () => {
-  const [products, setProducts] = useLocalStorage('products', []);
+  const { data: servicesData, isLoading, error, refetch } = useApiData('/services');
+  const products = servicesData?.services || [];
+
   const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: 'Service' });
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [isActionLoading, setIsActionLoading] = useState(false);
 
-  const addProduct = (e) => {
+  const addProduct = async (e) => {
     e.preventDefault();
-    if (!newProduct.name || !newProduct.price) return;
-    setProducts([{ ...newProduct, id: Date.now() }, ...products]);
-    setNewProduct({ name: '', price: '', description: '', category: 'Service' });
-    setIsFormVisible(false);
+    const parsedPrice = Number(newProduct.price);
+    if (!newProduct.name || isNaN(parsedPrice) || parsedPrice <= 0) return;
+    setIsActionLoading(true);
+    try {
+      const response = await fetch('http://localhost:4000/api/services', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+        body: JSON.stringify(newProduct),
+      });
+      if (response.ok) {
+        setNewProduct({ name: '', price: '', description: '', category: 'Service' });
+        setIsFormVisible(false);
+        refetch();
+      }
+    } catch (err) {
+      console.error('Add product error:', err);
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
-  const deleteProduct = (id) => {
-    setProducts(products.filter(p => p.id !== id));
-    if (expandedId === id) setExpandedId(null);
+  const deleteProduct = async (id) => {
+    setIsActionLoading(true);
+    try {
+      const response = await fetch(`http://localhost:4000/api/services/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+        },
+      });
+      if (response.ok) {
+        if (expandedId === id) setExpandedId(null);
+        refetch();
+      }
+    } catch (err) {
+      console.error('Delete product error:', err);
+    } finally {
+      setIsActionLoading(false);
+    }
   };
 
   const filteredProducts = products.filter(p =>
@@ -130,8 +168,8 @@ const ProductsPage = () => {
                 />
               </div>
 
-              <button type="submit" className="pp-submit-btn" style={{ marginTop: 8 }}>
-                Add to Catalog <ArrowUpRight size={14} style={{ marginLeft: 6 }} />
+              <button type="submit" className="pp-submit-btn" style={{ marginTop: 8, opacity: isActionLoading ? 0.7 : 1 }} disabled={isActionLoading}>
+                {isActionLoading ? 'Adding...' : 'Add to Catalog'} <ArrowUpRight size={14} style={{ marginLeft: 6 }} />
               </button>
             </form>
           </div>
@@ -156,7 +194,17 @@ const ProductsPage = () => {
 
       {/* ── Product Table ───────────────────────────── */}
       <div className="pp-table-wrap">
-        {filteredProducts.length === 0 ? (
+        {isLoading ? (
+          <div className="pp-empty" style={{ padding: '40px 0' }}>
+            <div className="ie-spinner" style={{ width: 18, height: 18, borderTopColor: '#94a3b8' }} />
+            <p className="pp-empty-sub" style={{ marginTop: 10 }}>Fething products...</p>
+          </div>
+        ) : error ? (
+          <div className="pp-empty" style={{ padding: '40px 0' }}>
+             <p className="pp-empty-sub" style={{ color: '#ef4444' }}>Backend Connection Error. Please verify the port 4000 server is active.</p>
+             <button className="pp-btn-outline" onClick={refetch} style={{ marginTop: 10 }}>Try Again</button>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="pp-empty">
             <div className="pp-empty-icon"><ShoppingBag size={28} color="#cbd5e1" /></div>
             <p className="pp-empty-title">No products found</p>
@@ -169,11 +217,11 @@ const ProductsPage = () => {
           <table className="pp-table">
             <thead>
               <tr>
-                <th className="pp-th" style={{ width: '35%' }}>Product</th>
+                <th className="pp-th" style={{ width: '12%', textAlign: 'left' }}>ID</th>
+                <th className="pp-th" style={{ width: '30%' }}>Product</th>
                 <th className="pp-th" style={{ width: '18%' }}>Category</th>
                 <th className="pp-th" style={{ width: '18%' }}>Unit Price</th>
-                <th className="pp-th" style={{ width: '19%' }}>Description</th>
-                <th className="pp-th" style={{ width: '10%', textAlign: 'right' }}>ID</th>
+                <th className="pp-th" style={{ width: '22%' }}>Description</th>
               </tr>
             </thead>
             <tbody>
@@ -186,6 +234,11 @@ const ProductsPage = () => {
                       className={isExpanded ? "pp-row expanded" : "pp-row collapsed"}
                       onClick={() => setExpandedId(prev => prev === product.id ? null : product.id)}
                     >
+                      {/* ID */}
+                      <td className="pp-td" style={{ textAlign: 'left' }}>
+                        <span className="pp-id-badge">{String(product.id).slice(-5)}</span>
+                      </td>
+
                       {/* Product Name */}
                       <td className="pp-td">
                         <div className="pp-name-cell">
@@ -205,20 +258,15 @@ const ProductsPage = () => {
 
                       {/* Price */}
                       <td className="pp-td">
-                        <span className="pp-price">₹{Number(product.price).toLocaleString('en-IN')}</span>
+                        <span className="pp-price">₹{Number(product.defaultPrice || product.price).toLocaleString('en-IN')}</span>
                       </td>
 
-                      {/* Description preview */}
+                      {/* Description preview + chevron */}
                       <td className="pp-td">
-                        <span className="pp-desc-preview">
-                          {product.description ? product.description.slice(0, 48) + (product.description.length > 48 ? '…' : '') : '—'}
-                        </span>
-                      </td>
-
-                      {/* ID + chevron */}
-                      <td className="pp-td" style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
-                          <span className="pp-id-badge">{String(product.id).slice(-5)}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                          <span className="pp-desc-preview">
+                            {product.description ? product.description.slice(0, 48) + (product.description.length > 48 ? '…' : '') : '—'}
+                          </span>
                           <ChevronRight
                             size={14}
                             color="#cbd5e1"
@@ -235,15 +283,17 @@ const ProductsPage = () => {
                           <div className="pp-expanded-body">
                             <div className="pp-detail-grid">
                               <DetailCard label="Full Description" value={product.description || 'No description provided.'} />
-                              <DetailCard label="Unit Price" value={`₹${Number(product.price).toLocaleString('en-IN')}`} mono />
+                              <DetailCard label="Unit Price" value={`₹${Number(product.defaultPrice || product.price).toLocaleString('en-IN')}`} mono />
                               <DetailCard label="Category" value={product.category} />
                             </div>
                             <div className="pp-expanded-actions">
                               <button
                                 className="pp-delete-btn"
+                                style={{ opacity: isActionLoading ? 0.6 : 1 }}
+                                disabled={isActionLoading}
                                 onClick={(e) => { e.stopPropagation(); deleteProduct(product.id); }}
                               >
-                                <Trash2 size={13} style={{ marginRight: 6 }} /> Remove Item
+                                <Trash2 size={13} style={{ marginRight: 6 }} /> {isActionLoading ? 'Removing...' : 'Remove Item'}
                               </button>
                               <button className="pp-edit-btn" onClick={(e) => e.stopPropagation()}>
                                 Edit Product <ArrowUpRight size={13} style={{ marginLeft: 6 }} />

@@ -146,4 +146,14 @@ This logbook documents the chronological history of changes, features added, and
 - **Refactor**: Decoupled UI logic from styling in `CustomersPage.jsx`, `ProductsPage.jsx`, and `InvoiceEditor.jsx`. Extracted over 1,500 lines of inline styles into dedicated `.css` files.
 - **Refactor**: Shifted `Sidebar.jsx` styling to `Sidebar.css`, implementing a standardized `sb-` class prefix to prevent global namespace pollution.
 - **Improved**: Component readability and maintainability significantly enhanced across the primary dashboard views.
+- **Added**: Toggleable **Edit Mode** for Business Information in `InvoiceEditor.jsx`. Fields are read-only until the user clicks "Edit".
+- **Database**: Updated Prisma schema to include `email` and `website` fields for the `Company` model.
+- **Backend**: Updated `PUT /api/companies` to support persisting extended business profile details.
+- **Added**: Sequential **Invoice Numbering** via `GET /api/invoices/next-number`. Backend parses the latest invoice number and increments it (e.g., `INV-005` → `INV-006`).
+- **Improved**: Locked the Invoice # field in `InvoiceEditor.jsx` to prevent manual overrides and ensure sequence integrity.
+- **Bug Fix**: Resolved `PayloadTooLargeError: request entity too large` by increasing Express `json` and `urlencoded` limits to **10MB** in `server.js`. This allows for large logos and complex profile data.
+- **Bug Fix**: Addressed intermittent 404 errors by adding request logging and standardizing API endpoint registration in the backend.
+- **Sync**: Migrated `ProductsPage.jsx` from `localStorage` to the central backend API. 
+- **Backend**: Implemented `POST` and `DELETE` endpoints in `services.js` to support full CRUD for the product catalog.
+- **Verify**: Confirmed through testing that products added in the Products Page now correctly populate the Invoice Editor dropdown.
 - **Verify**: Successfully ran global application builds to confirm production readiness and styling integrity.

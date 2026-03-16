@@ -16,6 +16,8 @@ model Company {
   gstNumber   String? @map("gst_number")
   address     String?
   logo        String? // URL or base64 data URI
+  email       String?
+  website     String?
 
   invoices Invoice[]
 
@@ -59,6 +61,7 @@ model Service {
   id           String  @id @default(cuid())
   name         String
   description  String?
+  category     String  @default("Service")
   defaultPrice Decimal @map("default_price") @db.Decimal(12, 2)
   gstRate      Decimal @map("gst_rate") @db.Decimal(5, 2)
 

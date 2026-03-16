@@ -1,6 +1,6 @@
 /* --- Products Page Layout --- */
 .pp-page {
-  max-width: 1080px;
+  max-width: 80%;
   margin: 0 auto;
   padding: 40px 32px 80px;
   font-family: "DM Sans", system-ui, sans-serif;

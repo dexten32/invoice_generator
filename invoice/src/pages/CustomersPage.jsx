@@ -279,11 +279,11 @@ const CustomersPage = () => {
           <table className="cp-table">
             <thead>
               <tr>
+                <th className="cp-th" style={{ width: '10%', textAlign: 'left' }}>ID</th>
                 <th className="cp-th" style={{ width: '30%' }}>Client Name</th>
                 <th className="cp-th" style={{ width: '28%' }}>Email</th>
                 <th className="cp-th" style={{ width: '18%' }}>Phone</th>
                 <th className="cp-th" style={{ width: '14%' }}>Status</th>
-                <th className="cp-th" style={{ width: '10%', textAlign: 'right' }}>ID</th>
               </tr>
             </thead>
             <tbody>
@@ -295,6 +295,9 @@ const CustomersPage = () => {
                       className={cn("cp-row", isExpanded ? "expanded" : "collapsed")}
                       onClick={() => toggleExpand(customer.id)}
                     >
+                      <td className="cp-td" style={{ textAlign: 'left' }}>
+                        <span className="cp-id-badge">{customer.id.slice(-6).toUpperCase()}</span>
+                      </td>
                       <td className="cp-td">
                         <div className="cp-name-cell">
                           <div className="cp-avatar">
@@ -314,14 +317,11 @@ const CustomersPage = () => {
                         </span>
                       </td>
                       <td className="cp-td">
-                        <span className="cp-status-badge">
-                          <span className="cp-status-dot" />
-                          Active
-                        </span>
-                      </td>
-                      <td className="cp-td" style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
-                          <span className="cp-id-badge">{customer.id.slice(-6).toUpperCase()}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                          <span className="cp-status-badge">
+                            <span className="cp-status-dot" />
+                            Active
+                          </span>
                           <ChevronRight
                             size={14}
                             color="#cbd5e1"

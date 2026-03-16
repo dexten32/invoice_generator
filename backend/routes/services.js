@@ -15,6 +15,7 @@ router.get('/', async (req, res) => {
         id: true,
         name: true,
         description: true,
+        category: true,
         defaultPrice: true,
         gstRate: true,
       },
@@ -54,6 +55,60 @@ router.get('/:id', async (req, res) => {
   } catch (err) {
     console.error('[Services] GET /:id error:', err);
     return res.status(500).json({ message: 'Failed to fetch service.' });
+  }
+});
+
+/**
+ * POST /api/services
+ * Creates a new service.
+ */
+router.post('/', async (req, res) => {
+  const { name, price, description, category } = req.body;
+
+  const parsedPrice = Number(price);
+  if (!name || isNaN(parsedPrice) || parsedPrice <= 0) {
+    return res.status(400).json({ message: 'Name and a valid positive price are required.' });
+  }
+
+  try {
+    const service = await prisma.service.create({
+      data: {
+        name,
+        defaultPrice: parsedPrice,
+        description: description || '',
+        category: category || 'Service',
+        gstRate: 18, // Default GST rate for new services
+      },
+    });
+    return res.status(201).json({
+      service: {
+        ...service,
+        defaultPrice: Number(service.defaultPrice),
+        gstRate: Number(service.gstRate),
+      },
+    });
+  } catch (err) {
+    console.error('[Services] POST error:', err);
+    return res.status(500).json({ message: 'Failed to create service.' });
+  }
+});
+
+/**
+ * DELETE /api/services/:id
+ * Deletes a service by ID.
+ */
+router.delete('/:id', async (req, res) => {
+  try {
+    await prisma.service.delete({
+      where: { id: req.params.id },
+    });
+    return res.status(200).json({ message: 'Service deleted successfully.' });
+  } catch (err) {
+    console.error('[Services] DELETE error:', err);
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'Service not found.' });
+    }
+    return res.status(500).json({ message: 'Failed to delete service.' });
   }
 });
 

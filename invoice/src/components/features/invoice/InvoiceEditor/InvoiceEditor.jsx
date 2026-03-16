@@ -73,10 +73,12 @@ const InvoiceEditor = ({ data, onChange }) => {
   if (!data) return null;
 
   const [isSavingBusiness, setIsSavingBusiness] = React.useState(false);
+  const [isEditingBusiness, setIsEditingBusiness] = React.useState(false);
 
   const { data: customersData, isLoading: customersLoading, error: customersError } = useApiData('/customers');
   const { data: servicesData, isLoading: servicesLoading, error: servicesError } = useApiData('/services');
   const { data: companyData, refetch: refetchCompany } = useApiData('/companies');
+  const { data: nextNumData } = useApiData('/invoices/next-number');
 
   React.useEffect(() => {
     if (companyData?.company) {
@@ -91,10 +93,24 @@ const InvoiceEditor = ({ data, onChange }) => {
           address1: addr1 || prev.business.address1,
           address2: addr2 || prev.business.address2,
           logo: c.logo || prev.business.logo,
+          email: c.email || prev.business.email,
+          website: c.website || prev.business.website,
         }
       }));
     }
   }, [companyData, onChange]);
+
+  React.useEffect(() => {
+    if (nextNumData?.nextNumber && !data.meta.invoiceNumber) {
+      onChange(prev => ({
+        ...prev,
+        meta: {
+          ...prev.meta,
+          invoiceNumber: nextNumData.nextNumber
+        }
+      }));
+    }
+  }, [nextNumData, onChange, data.meta.invoiceNumber]);
 
   const updateBusinessProfile = async () => {
     setIsSavingBusiness(true);
@@ -189,60 +205,127 @@ const InvoiceEditor = ({ data, onChange }) => {
           {/* Logo */}
           <div
             className="ie-logo-upload"
-            onClick={() => document.getElementById('logo-input').click()}
+            onClick={() => isEditingBusiness && document.getElementById('logo-input').click()}
+            style={{ cursor: isEditingBusiness ? 'pointer' : 'default', opacity: isEditingBusiness ? 1 : 0.8 }}
           >
             {data.business.logo ? (
               <div style={{ position: 'relative' }}>
                 <img src={data.business.logo} alt="Logo" className="ie-logo-img" />
-                <div className="ie-logo-overlay"><LuUpload size={12} /> Change</div>
+                {isEditingBusiness && <div className="ie-logo-overlay"><LuUpload size={12} /> Change</div>}
               </div>
             ) : (
               <div className="ie-logo-placeholder">
                 <LuImage size={20} color="#cbd5e1" />
-                <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Upload Logo</span>
+                <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                  {isEditingBusiness ? 'Upload Logo' : 'No Logo Provided'}
+                </span>
               </div>
             )}
-            <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} hidden />
+            <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} hidden disabled={!isEditingBusiness} />
           </div>
 
-          <button className="ie-btn-outline" style={isSavingBusiness ? { opacity: 0.7 } : {}} onClick={updateBusinessProfile} disabled={isSavingBusiness}>
-            <LuUpload size={13} style={{ marginRight: 6 }} />
-            {isSavingBusiness ? 'Saving…' : 'Update Business Profile'}
-          </button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            {!isEditingBusiness ? (
+              <button className="ie-btn-outline" onClick={() => setIsEditingBusiness(true)}>
+                Edit Business Profile
+              </button>
+            ) : (
+              <>
+                <button
+                  className="ie-btn-outline"
+                  style={{ background: '#0f172a', color: 'white', border: 'none', opacity: isSavingBusiness ? 0.7 : 1 }}
+                  onClick={async () => {
+                    await updateBusinessProfile();
+                    setIsEditingBusiness(false);
+                  }}
+                  disabled={isSavingBusiness}
+                >
+                  {isSavingBusiness ? 'Saving…' : 'Save Changes'}
+                </button>
+                <button className="ie-btn-outline" onClick={() => setIsEditingBusiness(false)} disabled={isSavingBusiness}>
+                  Cancel
+                </button>
+              </>
+            )}
+          </div>
 
           <div className="ie-divider" />
 
           <Field label="Business Name">
-            <input className="ie-input" value={data.business.name} placeholder="Acme Corp"
-              onChange={e => handleChange('business', 'name', e.target.value)} />
+            <input
+              className="ie-input"
+              value={data.business.name}
+              placeholder="Acme Corp"
+              readOnly={!isEditingBusiness}
+              style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+              onChange={e => handleChange('business', 'name', e.target.value)}
+            />
           </Field>
           <Field label="Tax Number / GSTIN">
-            <input className="ie-input" value={data.business.number} placeholder="29AAAAA0000A1Z5"
-              onChange={e => handleChange('business', 'number', e.target.value)} />
+            <input
+              className="ie-input"
+              value={data.business.number}
+              placeholder="29AAAAA0000A1Z5"
+              readOnly={!isEditingBusiness}
+              style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+              onChange={e => handleChange('business', 'number', e.target.value)}
+            />
           </Field>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Field label="Address Line 1">
-              <input className="ie-input" value={data.business.address1} placeholder="Street address"
-                onChange={e => handleChange('business', 'address1', e.target.value)} />
+              <input
+                className="ie-input"
+                value={data.business.address1}
+                placeholder="Street address"
+                readOnly={!isEditingBusiness}
+                style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+                onChange={e => handleChange('business', 'address1', e.target.value)}
+              />
             </Field>
             <Field label="Address Line 2">
-              <input className="ie-input" value={data.business.address2} placeholder="City, State"
-                onChange={e => handleChange('business', 'address2', e.target.value)} />
+              <input
+                className="ie-input"
+                value={data.business.address2}
+                placeholder="City, State"
+                readOnly={!isEditingBusiness}
+                style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+                onChange={e => handleChange('business', 'address2', e.target.value)}
+              />
             </Field>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Field label="Email Address">
               <div className="ie-input-icon-wrap">
                 <LuMail size={13} color="#94a3b8" className="ie-input-icon" />
-                <input className="ie-input" style={{ paddingLeft: 32 }} type="email" value={data.business.email}
-                  onChange={e => handleChange('business', 'email', e.target.value)} />
+                <input
+                  className="ie-input"
+                  style={{
+                    paddingLeft: 32,
+                    background: isEditingBusiness ? 'white' : '#f8fafc',
+                    color: isEditingBusiness ? '#0f172a' : '#64748b'
+                  }}
+                  type="email"
+                  value={data.business.email}
+                  readOnly={!isEditingBusiness}
+                  onChange={e => handleChange('business', 'email', e.target.value)}
+                />
               </div>
             </Field>
             <Field label="Website">
               <div className="ie-input-icon-wrap">
                 <LuGlobe size={13} color="#94a3b8" className="ie-input-icon" />
-                <input className="ie-input" style={{ paddingLeft: 32 }} value={data.business.website} placeholder="www.yoursite.com"
-                  onChange={e => handleChange('business', 'website', e.target.value)} />
+                <input
+                  className="ie-input"
+                  style={{
+                    paddingLeft: 32,
+                    background: isEditingBusiness ? 'white' : '#f8fafc',
+                    color: isEditingBusiness ? '#0f172a' : '#64748b'
+                  }}
+                  value={data.business.website}
+                  placeholder="www.yoursite.com"
+                  readOnly={!isEditingBusiness}
+                  onChange={e => handleChange('business', 'website', e.target.value)}
+                />
               </div>
             </Field>
           </div>
@@ -284,8 +367,13 @@ const InvoiceEditor = ({ data, onChange }) => {
         <Section icon={<LuCalendar size={15} />} title="Invoice Details">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
             <Field label="Invoice #">
-              <input className="ie-input" value={data.meta.invoiceNumber} placeholder="INV-001"
-                onChange={e => handleChange('meta', 'invoiceNumber', e.target.value)} />
+              <input
+                className="ie-input"
+                value={data.meta.invoiceNumber}
+                placeholder="INV-001"
+                readOnly
+                style={{ background: '#f8fafc', color: '#64748b', cursor: 'default' }}
+              />
             </Field>
             <Field label="Date">
               <input className="ie-input" value={data.meta.date}

@@ -38,7 +38,8 @@ router.put('/', async (req, res) => {
           gstNumber: number,
           address: `${address1}\n${address2}`,
           logo,
-          // Note: Add email/website to schema if needed, for now we map to existing fields or store in address
+          email,
+          website,
         },
       });
     } else {
@@ -48,6 +49,8 @@ router.put('/', async (req, res) => {
           gstNumber: number,
           address: `${address1}\n${address2}`,
           logo,
+          email,
+          website,
         },
       });
     }
