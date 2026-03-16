@@ -76,11 +76,13 @@ const Invoice = ({ data }) => {
                 <div className="bill-to-section">
                     <p className="section-label">BILL TO</p>
                     <h3 className="client-name">{client.name || 'Client Name'}</h3>
-                    {client.address1 && <p>{client.address1}</p>}
-                    {client.address2 && <p>{client.address2}</p>}
-                    {client.phone && (
+                    {client.gstNumber && <p className="client-gst"><strong>GST:</strong> {client.gstNumber}</p>}
+                    <p className="client-address">
+                        {[client.street, client.district, client.city, client.state, client.pincode, client.country].filter(Boolean).join(', ') || 'Address not provided'}
+                    </p>
+                    {(client.phoneCountryCode || client.phoneNumber) && (
                         <p className="contact-line">
-                            <span className="icon">📞</span> {client.phone}
+                            <span className="icon">📞</span> {client.phoneCountryCode} {client.phoneNumber}
                         </p>
                     )}
                     {client.email && <p><a href={`mailto:${client.email}`} className="link">{client.email}</a></p>}

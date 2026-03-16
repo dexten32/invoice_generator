@@ -15,33 +15,81 @@ router.get('/', async (req, res) => {
         id: true,
         name: true,
         email: true,
-        phone: true,
+        phoneCountryCode: true,
+        phoneNumber: true,
         gstNumber: true,
+        street: true,
+        district: true,
+        city: true,
+        state: true,
+        pincode: true,
+        country: true,
       },
     });
     return res.status(200).json({ customers });
   } catch (err) {
-    console.error('[Customers] GET error:', err);
-    return res.status(500).json({ message: 'Failed to fetch customers.' });
+    console.error('Error fetching customers:', err);
+    return res.status(500).json({ message: 'Failed to fetch customers.', error: err.message });
+  }
+});
+
+// ... (GET /:id remains mostly unchanged, but will now return all fields)
+
+/**
+ * POST /api/customers
+ * Creates a new customer.
+ */
+router.post('/', async (req, res) => {
+  const { 
+    name, email, 
+    phoneCountryCode, phoneNumber, 
+    gstNumber,
+    street, district, city, state, pincode, country
+  } = req.body;
+
+  if (!name) return res.status(400).json({ message: 'Name is required.' });
+  if (!gstNumber) return res.status(400).json({ message: 'GST Number is required.' });
+
+  try {
+    const customer = await prisma.customer.create({
+      data: { 
+        name, 
+        email: email || null, 
+        phoneCountryCode, 
+        phoneNumber, 
+        gstNumber,
+        street, 
+        district, 
+        city, 
+        state, 
+        pincode, 
+        country
+      },
+    });
+    return res.status(201).json({ customer });
+  } catch (err) {
+    console.error('Error creating customer:', err);
+    return res.status(500).json({ message: 'Failed to create customer.', error: err.message });
   }
 });
 
 /**
- * GET /api/customers/:id
- * Returns a single customer by ID.
+ * DELETE /api/customers/:id
+ * Deletes a customer by ID.
  */
-router.get('/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
-    const customer = await prisma.customer.findUnique({
+    await prisma.customer.delete({
       where: { id: req.params.id },
     });
-    if (!customer) {
-      return res.status(404).json({ message: 'Customer not found.' });
-    }
-    return res.status(200).json({ customer });
+    return res.status(200).json({ message: 'Customer deleted successfully.' });
   } catch (err) {
-    console.error('[Customers] GET /:id error:', err);
-    return res.status(500).json({ message: 'Failed to fetch customer.' });
+    console.error('[Customers] DELETE error:', err);
+    // Handle case where customer doesn't exist
+    if (err.code === 'P2025') {
+        return res.status(404).json({ message: 'Customer not found.' });
+    }
+    return res.status(500).json({ message: 'Failed to delete customer.' });
   }
 });
 

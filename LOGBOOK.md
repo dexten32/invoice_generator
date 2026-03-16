@@ -133,3 +133,13 @@ This logbook documents the chronological history of changes, features added, and
 - **Note**: Prisma auto-promoted `driverAdapters` out of preview in v7, so `previewFeatures = ["driverAdapters"]` in `schema.prisma` was added then immediately removed (it generated a deprecation warning and is not required).
 - **Ran**: `npx prisma generate` to regenerate the Prisma Client with adapter support.
 
+---
+
+### 🕑 11:11 - Bug Fix: White Screen (Missing Icon Exports)
+
+- **Issue**: The application was failing to render, resulting in a blank white screen. Console revealed a `SyntaxError`: *"The requested module... does not provide an export named 'LuAlertCircle'"*.
+- **Investigation**: Used a browser subagent to capture the error. Ran node commands to inspect `react-icons/lu` exports in `node_modules`. Found that `LuAlertCircle` and `LuAlertTriangle` were missing in the installed version of the package.
+- **Fixed**: Updated `InvoiceEditor.jsx` to use `LuCircleAlert`, which was verified to exist.
+- **Audited**: Proactively verified that other new icons (`LuPackage`, `LuChevronDown`) are available to prevent similar crashes.
+- **Result**: Application rendering restored; the Invoice Editor now loads correctly with the new dropdown features.
+

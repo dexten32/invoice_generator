@@ -31,7 +31,11 @@ import {
     LuUpload,
     LuGlobe,
     LuMail,
+    LuPhone,
+    LuMapPin,
+    LuHash,
     LuChevronDown,
+
     LuPackage,
     LuCircleAlert,
 } from 'react-icons/lu';
@@ -74,6 +78,8 @@ const FetchError = ({ message }) => (
 const InvoiceEditor = ({ data, onChange }) => {
     if (!data) return null;
 
+    const [isSavingBusiness, setIsSavingBusiness] = React.useState(false);
+
     // Fetch customers and services from backend
     const {
         data: customersData,
@@ -87,8 +93,54 @@ const InvoiceEditor = ({ data, onChange }) => {
         error: servicesError,
     } = useApiData('/services');
 
+    // Initial fetch for company profile to populate business details
+    const {
+        data: companyData,
+        refetch: refetchCompany,
+    } = useApiData('/companies');
+
+    React.useEffect(() => {
+        if (companyData?.company) {
+            const c = companyData.company;
+            const [addr1, addr2] = (c.address || '').split('\n');
+            onChange(prev => ({
+                ...prev,
+                business: {
+                    ...prev.business,
+                    name: c.companyName || prev.business.name,
+                    number: c.gstNumber || prev.business.number,
+                    address1: addr1 || prev.business.address1,
+                    address2: addr2 || prev.business.address2,
+                    logo: c.logo || prev.business.logo,
+                }
+            }));
+        }
+    }, [companyData, onChange]);
+
+    const updateBusinessProfile = async () => {
+        setIsSavingBusiness(true);
+        try {
+            const token = localStorage.getItem('auth_token');
+            const res = await fetch('http://localhost:4000/api/companies', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+                },
+                body: JSON.stringify(data.business),
+            });
+            if (!res.ok) throw new Error('Failed to update profile');
+            refetchCompany();
+        } catch (err) {
+            console.error('Update error:', err);
+        } finally {
+            setIsSavingBusiness(false);
+        }
+    };
+
     const customers = customersData?.customers ?? [];
     const services = servicesData?.services ?? [];
+
 
     // ── Handlers ──────────────────────────────────────────────────────────────
     const handleChange = (section, field, value) => {
@@ -105,7 +157,12 @@ const InvoiceEditor = ({ data, onChange }) => {
         if (!customer) {
             onChange((prev) => ({
                 ...prev,
-                client: { id: '', name: '', email: '', phone: '', gstNumber: '', address1: '', address2: '' },
+                client: { 
+                    id: '', name: '', email: '', 
+                    phoneCountryCode: '', phoneNumber: '', 
+                    gstNumber: '', 
+                    street: '', district: '', city: '', state: '', pincode: '', country: '' 
+                },
             }));
             return;
         }
@@ -115,10 +172,15 @@ const InvoiceEditor = ({ data, onChange }) => {
                 id: customer.id,
                 name: customer.name,
                 email: customer.email ?? '',
-                phone: customer.phone ?? '',
+                phoneCountryCode: customer.phoneCountryCode ?? '',
+                phoneNumber: customer.phoneNumber ?? '',
                 gstNumber: customer.gstNumber ?? '',
-                address1: '',
-                address2: '',
+                street: customer.street ?? '',
+                district: customer.district ?? '',
+                city: customer.city ?? '',
+                state: customer.state ?? '',
+                pincode: customer.pincode ?? '',
+                country: customer.country ?? '',
             },
         }));
     };
@@ -229,6 +291,16 @@ const InvoiceEditor = ({ data, onChange }) => {
                                 <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} hidden />
                             </Box>
 
+                            <Button
+                                colorPalette="blue"
+                                onClick={updateBusinessProfile}
+                                loading={isSavingBusiness}
+                                width="full"
+                                size="md"
+                            >
+                                <LuUpload /> Update Business Profile
+                            </Button>
+
                             <Field label="Business Name">
                                 <Input
                                     value={data.business.name}
@@ -236,6 +308,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                                     placeholder="e.g. Acme Corp"
                                 />
                             </Field>
+
                             <Field label="Tax Number / GSTIN">
                                 <Input
                                     value={data.business.number}
@@ -312,37 +385,67 @@ const InvoiceEditor = ({ data, onChange }) => {
                                 )}
                             </Field>
 
-                            {/* Read-only preview of selected customer details */}
+                            {/* Read-only preview of selected customer details - List style */}
                             {data.client?.name && (
-                                <Box className="customer-detail-card">
-                                    <Flex gap="3" wrap="wrap">
-                                        {data.client.name && (
-                                            <Box className="customer-detail-item">
-                                                <Text className="customer-detail-label">Name</Text>
-                                                <Text className="customer-detail-value">{data.client.name}</Text>
+                                <Box className="customer-detail-list">
+                                    <Stack gap="3">
+                                        <Flex align="center" gap="3" className="customer-list-item">
+                                            <Box className="customer-list-icon mail">
+                                                <LuMail size="14" />
                                             </Box>
-                                        )}
-                                        {data.client.email && (
-                                            <Box className="customer-detail-item">
-                                                <Text className="customer-detail-label">Email</Text>
-                                                <Text className="customer-detail-value">{data.client.email}</Text>
+                                            <Box>
+                                                <Text className="customer-list-label">Email Address</Text>
+                                                <Text className="customer-list-value">{data.client.email || 'N/A'}</Text>
                                             </Box>
-                                        )}
-                                        {data.client.phone && (
-                                            <Box className="customer-detail-item">
-                                                <Text className="customer-detail-label">Phone</Text>
-                                                <Text className="customer-detail-value">{data.client.phone}</Text>
+                                        </Flex>
+
+                                        <Flex align="center" gap="3" className="customer-list-item">
+                                            <Box className="customer-list-icon map">
+                                                <LuMapPin size="14" />
                                             </Box>
-                                        )}
-                                        {data.client.gstNumber && (
-                                            <Box className="customer-detail-item">
-                                                <Text className="customer-detail-label">GST</Text>
-                                                <Text className="customer-detail-value">{data.client.gstNumber}</Text>
+                                            <Box>
+                                                <Text className="customer-list-label">Full Address</Text>
+                                                <Text className="customer-list-value">
+                                                    {[data.client.street, data.client.city, data.client.state, data.client.pincode, data.client.country].filter(Boolean).join(', ') || 'N/A'}
+                                                </Text>
                                             </Box>
-                                        )}
+                                        </Flex>
+
+                                        <Flex align="center" gap="3" className="customer-list-item">
+                                            <Box className="customer-list-icon phone">
+                                                <LuPhone size="14" />
+                                            </Box>
+                                            <Box>
+                                                <Text className="customer-list-label">Contact Details</Text>
+                                                <Text className="customer-list-value">
+                                                    {data.client.phoneCountryCode} {data.client.phoneNumber || 'N/A'}
+                                                </Text>
+                                            </Box>
+                                        </Flex>
+
+                                        <Flex align="center" gap="3" className="customer-list-item">
+                                            <Box className="customer-list-icon hash">
+                                                <LuHash size="14" />
+                                            </Box>
+                                            <Box>
+                                                <Text className="customer-list-label">GST Identification Number</Text>
+                                                <Text className="customer-list-value font-mono font-bold">{data.client.gstNumber || 'N/A'}</Text>
+                                            </Box>
+                                        </Flex>
+                                    </Stack>
+
+                                    <Flex justify="space-between" align="center" mt="4" pt="3" borderTop="1px solid" borderColor="blue.100">
+                                        <Flex align="center" gap="2">
+                                            <Box w="8px" h="8px" borderRadius="full" bg="green.500" />
+                                            <Text fontSize="xs" fontWeight="bold" color="blue.600" letterSpacing="wider">ACTIVE CLIENT</Text>
+                                        </Flex>
+                                        <Button variant="ghost" size="xs" colorPalette="blue" px="0">
+                                            Client Directory <LuGlobe size="12" style={{ marginLeft: '4px' }} />
+                                        </Button>
                                     </Flex>
                                 </Box>
                             )}
+
                         </Stack>
                     </AccordionItemContent>
                 </AccordionItem>

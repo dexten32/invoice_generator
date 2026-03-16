@@ -29,11 +29,20 @@ model Company {
 // Customers — clients who receive invoices
 // ─────────────────────────────────────────────
 model Customer {
-  id        String  @id @default(cuid())
-  name      String
-  email     String? @unique
-  phone     String?
-  gstNumber String? @map("gst_number")
+  id               String  @id @default(cuid())
+  name             String
+  email            String? @unique
+  phoneCountryCode String? @map("phone_country_code")
+  phoneNumber      String? @map("phone_number")
+  gstNumber        String  @map("gst_number")
+
+  // Structured Address
+  street   String?
+  district String?
+  city     String?
+  state    String?
+  pincode  String?
+  country  String?
 
   invoices Invoice[]
 
