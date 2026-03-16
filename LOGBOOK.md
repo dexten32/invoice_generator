@@ -142,4 +142,8 @@ This logbook documents the chronological history of changes, features added, and
 - **Fixed**: Updated `InvoiceEditor.jsx` to use `LuCircleAlert`, which was verified to exist.
 - **Audited**: Proactively verified that other new icons (`LuPackage`, `LuChevronDown`) are available to prevent similar crashes.
 - **Result**: Application rendering restored; the Invoice Editor now loads correctly with the new dropdown features.
-
+### 🕑 14:15 - CSS Extraction & Code Refactoring
+- **Refactor**: Decoupled UI logic from styling in `CustomersPage.jsx`, `ProductsPage.jsx`, and `InvoiceEditor.jsx`. Extracted over 1,500 lines of inline styles into dedicated `.css` files.
+- **Refactor**: Shifted `Sidebar.jsx` styling to `Sidebar.css`, implementing a standardized `sb-` class prefix to prevent global namespace pollution.
+- **Improved**: Component readability and maintainability significantly enhanced across the primary dashboard views.
+- **Verify**: Successfully ran global application builds to confirm production readiness and styling integrity.

@@ -1,243 +1,332 @@
-.invoice-editor {
-    flex: 1;
-    background-color: transparent;
-    padding: 0;
-    font-family: inherit;
-    overflow-y: visible;
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
+/* InvoiceEditor.css */
+
+.ie-editor {
+  font-family: "DM Sans", system-ui, sans-serif;
+  color: #0f172a;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+  overflow-y: auto;
 }
 
-.editor-header {
-    margin-bottom: 0;
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+.ie-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 8px;
 }
 
-.dark .editor-header {
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+.ie-header-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
-/* Logo Upload Styling */
-.logo-upload-area {
-    width: 100%;
-    height: 140px;
-    border: 2px dashed #e2e8f0;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    background-color: #f8fafc;
-    position: relative;
+.ie-header-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0 0 2px;
+  color: #0f172a;
 }
 
-.dark .logo-upload-area {
-    background-color: #0f172a;
-    border-color: #1e293b;
+.ie-header-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0;
+  font-weight: 500;
 }
 
-.logo-upload-area:hover {
-    border-color: var(--primary);
-    background-color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(var(--primary), 0.1);
+/* Sections */
+.ie-section {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
 }
 
-.logo-preview-img {
-    max-height: 110px;
-    width: auto;
-    object-fit: contain;
-    transition: transform 0.5s ease;
+.ie-section-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: white;
+  border: none;
+  cursor: pointer;
+  gap: 8px;
 }
 
-.logo-upload-area:hover .logo-preview-img {
-    transform: scale(1.02);
+.ie-section-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.logo-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    opacity: 0;
-    transition: all 0.3s ease;
-    font-size: 13px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+.ie-section-icon {
+  display: flex;
+  align-items: center;
+  color: #475569;
 }
 
-.logo-upload-area:hover .logo-overlay {
-    opacity: 1;
+.ie-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
 }
 
-/* Item Card Enhancements */
-.item-card-hover {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+.ie-section-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1px 7px;
 }
 
-.item-card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
-    border-color: var(--primary);
+.ie-section-body {
+  padding: 4px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid #f1f5f9;
 }
 
-/* Inputs and interactive elements */
-.invoice-editor input,
-.invoice-editor textarea {
-    border-radius: 12px !important;
-    font-weight: 500 !important;
+/* Form elements */
+.ie-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  letter-spacing: 0.01em;
 }
 
-/* Accordion Styling Overlay */
-.invoice-editor [data-part="item"] {
-    background: white !important;
-    border-radius: 24px !important;
-    border: 1px solid #f1f5f9 !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02) !important;
-    overflow: hidden;
-    margin-bottom: 20px;
-    transition: all 0.3s ease;
+.ie-input {
+  width: 100%;
+  padding: 9px 11px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  outline: none;
+  color: #0f172a;
+  background: white;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
-
-.invoice-editor [data-part="item"]:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05) !important;
+.ie-select {
+  width: 100%;
+  padding: 9px 32px 9px 11px;
+  font-size: 13px;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  outline: none;
+  color: #0f172a;
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
-.invoice-editor [data-part="trigger"] {
-    padding: 24px !important;
-    font-size: 15px !important;
-    letter-spacing: -0.01em !important;
+.ie-input-icon-wrap {
+  position: relative;
 }
 
-.invoice-editor [data-part="content"] {
-    padding: 0 24px 24px 24px !important;
+.ie-input-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-/* Force label visibility in Field components */
-.invoice-editor label {
-    text-transform: uppercase !important;
-    letter-spacing: 0.1em !important;
-    font-size: 10px !important;
-    font-weight: 800 !important;
-    color: #94a3b8 !important;
-    margin-bottom: 8px !important;
+.ie-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 4px 0;
 }
 
-/* ── Styled Native Select ──────────────────────────────────────── */
-.editor-select-wrap {
-    position: relative;
-    width: 100%;
+/* Logo */
+.ie-logo-upload {
+  width: 100%;
+  height: 80px;
+  border: 1px dashed #e2e8f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #f8fafc;
+  overflow: hidden;
 }
 
-.editor-select {
-    width: 100%;
-    height: 44px;
-    padding: 0 2.75rem 0 1rem;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    background-color: #f8fafc;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #1e293b;
-    appearance: none;
-    -webkit-appearance: none;
-    cursor: pointer;
-    outline: none;
-    transition: all 0.25s ease;
+.ie-logo-img {
+  max-height: 64px;
+  max-width: 100%;
+  object-fit: contain;
 }
 
-.editor-select:hover {
-    border-color: #cbd5e1;
-    background-color: #ffffff;
+.ie-logo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.editor-select:focus {
-    border-color: hsl(var(--primary));
-    background-color: #ffffff;
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.08);
+.ie-logo-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
 }
 
-.editor-select:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+/* Buttons */
+.ie-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 9px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  background: white;
+  color: #334155;
+  cursor: pointer;
 }
 
-.editor-select-icon {
-    position: absolute;
-    right: 0.875rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1rem;
-    height: 1rem;
-    color: #94a3b8;
-    pointer-events: none;
-    transition: color 0.2s ease;
+.ie-add-item-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
 }
 
-.editor-select-wrap:focus-within .editor-select-icon {
-    color: hsl(var(--primary));
+/* Client card */
+.ie-client-card {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 4px 12px 0;
 }
 
-/* ── Customer Detail List (New Style) ─────────────────────────── */
-.customer-detail-list {
-    background: #f8faff;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 1.25rem;
-    margin-top: 1rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+.ie-client-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0 8px;
 }
 
-.customer-list-item {
-    padding: 0.5rem 0;
+.ie-active-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #16a34a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.customer-list-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+.ie-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: inline-block;
 }
 
-.customer-list-icon.mail { background: #eef2ff; color: #4f46e5; }
-.customer-list-icon.map { background: #fff7ed; color: #ea580c; }
-.customer-list-icon.phone { background: #ecfdf5; color: #059669; }
-.customer-list-icon.hash { background: #fdf2f8; color: #db2777; }
-
-.customer-list-label {
-    font-size: 0.65rem !important;
-    font-weight: 800 !important;
-    color: #94a3b8 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.075em !important;
-    line-height: 1 !important;
-    margin-bottom: 2px !important;
+/* Line items */
+.ie-item-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 12px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.customer-list-value {
-    font-size: 0.8125rem !important;
-    color: #1e293b !important;
-    font-weight: 600 !important;
-    letter-spacing: normal !important;
-    text-transform: none !important;
+.ie-item-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.logo-upload-area {
-    margin-bottom: -0.5rem;
+.ie-item-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #475569;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 2px 9px;
 }
 
-
+.ie-item-delete-btn {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  background: #fff5f5;
+  color: #dc2626;
+  cursor: pointer;
+}
+
+.ie-amount-box {
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 11px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.ie-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid #e2e8f0;
+  border-top: 2px solid #94a3b8;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}

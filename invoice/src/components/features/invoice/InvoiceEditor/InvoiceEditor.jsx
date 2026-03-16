@@ -12,7 +12,7 @@ import './InvoiceEditor.css';
 
 const StyledSelect = ({ id, value, onChange, disabled, children, placeholder }) => (
   <div style={{ position: 'relative' }}>
-    <select id={id} value={value} onChange={onChange} disabled={disabled} style={s.select}>
+    <select id={id} value={value} onChange={onChange} disabled={disabled} className="ie-select">
       {placeholder && <option value="">{placeholder}</option>}
       {children}
     </select>
@@ -22,7 +22,7 @@ const StyledSelect = ({ id, value, onChange, disabled, children, placeholder }) 
 
 const FetchLoading = ({ label }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', color: '#94a3b8', fontSize: 12 }}>
-    <div style={s.spinner} /> Loading {label}…
+    <div className="ie-spinner" /> Loading {label}…
   </div>
 );
 
@@ -36,12 +36,12 @@ const FetchError = ({ message }) => (
 const Section = ({ icon, title, badge, children, defaultOpen = false }) => {
   const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <div style={s.section}>
-      <button style={s.sectionTrigger} onClick={() => setOpen(o => !o)}>
-        <div style={s.sectionLeft}>
-          <span style={s.sectionIcon}>{icon}</span>
-          <span style={s.sectionTitle}>{title}</span>
-          {badge != null && <span style={s.sectionBadge}>{badge}</span>}
+    <div className="ie-section">
+      <button className="ie-section-trigger" onClick={() => setOpen(o => !o)}>
+        <div className="ie-section-left">
+          <span className="ie-section-icon">{icon}</span>
+          <span className="ie-section-title">{title}</span>
+          {badge != null && <span className="ie-section-badge">{badge}</span>}
         </div>
         <LuChevronRight
           size={14}
@@ -49,13 +49,13 @@ const Section = ({ icon, title, badge, children, defaultOpen = false }) => {
           style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease', flexShrink: 0 }}
         />
       </button>
-      {open && <div style={s.sectionBody}>{children}</div>}
+      {open && <div className="ie-section-body">{children}</div>}
     </div>
   );
 };
 
 const Label = ({ children, required }) => (
-  <label style={s.label}>
+  <label className="ie-label">
     {children}{required && <span style={{ color: '#ef4444', marginLeft: 2 }}>*</span>}
   </label>
 );
@@ -171,14 +171,14 @@ const InvoiceEditor = ({ data, onChange }) => {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div style={s.editor}>
+    <div className="ie-editor">
 
       {/* ── Header ── */}
-      <div style={s.header}>
-        <div style={s.headerIcon}><LuCalculator size={18} color="#fff" /></div>
+      <div className="ie-header">
+        <div className="ie-header-icon"><LuCalculator size={18} color="#fff" /></div>
         <div>
-          <h2 style={s.headerTitle}>Invoice Editor</h2>
-          <p style={s.headerSub}>Manage business, client and line items</p>
+          <h2 className="ie-header-title">Invoice Editor</h2>
+          <p className="ie-header-sub">Manage business, client and line items</p>
         </div>
       </div>
 
@@ -188,16 +188,16 @@ const InvoiceEditor = ({ data, onChange }) => {
         <Section icon={<LuBuilding2 size={15} />} title="Business Information">
           {/* Logo */}
           <div
-            style={s.logoUpload}
+            className="ie-logo-upload"
             onClick={() => document.getElementById('logo-input').click()}
           >
             {data.business.logo ? (
               <div style={{ position: 'relative' }}>
-                <img src={data.business.logo} alt="Logo" style={s.logoImg} />
-                <div style={s.logoOverlay}><LuUpload size={12} /> Change</div>
+                <img src={data.business.logo} alt="Logo" className="ie-logo-img" />
+                <div className="ie-logo-overlay"><LuUpload size={12} /> Change</div>
               </div>
             ) : (
-              <div style={s.logoPlaceholder}>
+              <div className="ie-logo-placeholder">
                 <LuImage size={20} color="#cbd5e1" />
                 <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>Upload Logo</span>
               </div>
@@ -205,43 +205,43 @@ const InvoiceEditor = ({ data, onChange }) => {
             <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} hidden />
           </div>
 
-          <button style={isSavingBusiness ? { ...s.btnOutline, opacity: 0.7 } : s.btnOutline} onClick={updateBusinessProfile} disabled={isSavingBusiness}>
+          <button className="ie-btn-outline" style={isSavingBusiness ? { opacity: 0.7 } : {}} onClick={updateBusinessProfile} disabled={isSavingBusiness}>
             <LuUpload size={13} style={{ marginRight: 6 }} />
             {isSavingBusiness ? 'Saving…' : 'Update Business Profile'}
           </button>
 
-          <div style={s.divider} />
+          <div className="ie-divider" />
 
           <Field label="Business Name">
-            <input style={s.input} value={data.business.name} placeholder="Acme Corp"
+            <input className="ie-input" value={data.business.name} placeholder="Acme Corp"
               onChange={e => handleChange('business', 'name', e.target.value)} />
           </Field>
           <Field label="Tax Number / GSTIN">
-            <input style={s.input} value={data.business.number} placeholder="29AAAAA0000A1Z5"
+            <input className="ie-input" value={data.business.number} placeholder="29AAAAA0000A1Z5"
               onChange={e => handleChange('business', 'number', e.target.value)} />
           </Field>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Field label="Address Line 1">
-              <input style={s.input} value={data.business.address1} placeholder="Street address"
+              <input className="ie-input" value={data.business.address1} placeholder="Street address"
                 onChange={e => handleChange('business', 'address1', e.target.value)} />
             </Field>
             <Field label="Address Line 2">
-              <input style={s.input} value={data.business.address2} placeholder="City, State"
+              <input className="ie-input" value={data.business.address2} placeholder="City, State"
                 onChange={e => handleChange('business', 'address2', e.target.value)} />
             </Field>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Field label="Email Address">
-              <div style={s.inputIconWrap}>
-                <LuMail size={13} color="#94a3b8" style={s.inputIcon} />
-                <input style={{ ...s.input, paddingLeft: 32 }} type="email" value={data.business.email}
+              <div className="ie-input-icon-wrap">
+                <LuMail size={13} color="#94a3b8" className="ie-input-icon" />
+                <input className="ie-input" style={{ paddingLeft: 32 }} type="email" value={data.business.email}
                   onChange={e => handleChange('business', 'email', e.target.value)} />
               </div>
             </Field>
             <Field label="Website">
-              <div style={s.inputIconWrap}>
-                <LuGlobe size={13} color="#94a3b8" style={s.inputIcon} />
-                <input style={{ ...s.input, paddingLeft: 32 }} value={data.business.website} placeholder="www.yoursite.com"
+              <div className="ie-input-icon-wrap">
+                <LuGlobe size={13} color="#94a3b8" className="ie-input-icon" />
+                <input className="ie-input" style={{ paddingLeft: 32 }} value={data.business.website} placeholder="www.yoursite.com"
                   onChange={e => handleChange('business', 'website', e.target.value)} />
               </div>
             </Field>
@@ -266,14 +266,14 @@ const InvoiceEditor = ({ data, onChange }) => {
           </Field>
 
           {data.client?.name && (
-            <div style={s.clientCard}>
+            <div className="ie-client-card">
               <ClientRow icon={<LuMail size={13} />} label="Email" value={data.client.email || 'N/A'} />
               <ClientRow icon={<LuPhone size={13} />} label="Phone" value={`${data.client.phoneCountryCode} ${data.client.phoneNumber || 'N/A'}`} />
               <ClientRow icon={<LuMapPin size={13} />} label="Address" value={[data.client.street, data.client.city, data.client.state, data.client.pincode, data.client.country].filter(Boolean).join(', ') || 'N/A'} />
               <ClientRow icon={<LuHash size={13} />} label="GSTIN" value={data.client.gstNumber || 'N/A'} mono />
-              <div style={s.clientFooter}>
-                <div style={s.activePill}>
-                  <span style={s.activeDot} /> Active Client
+              <div className="ie-client-footer">
+                <div className="ie-active-pill">
+                  <span className="ie-active-dot" /> Active Client
                 </div>
               </div>
             </div>
@@ -284,15 +284,15 @@ const InvoiceEditor = ({ data, onChange }) => {
         <Section icon={<LuCalendar size={15} />} title="Invoice Details">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
             <Field label="Invoice #">
-              <input style={s.input} value={data.meta.invoiceNumber} placeholder="INV-001"
+              <input className="ie-input" value={data.meta.invoiceNumber} placeholder="INV-001"
                 onChange={e => handleChange('meta', 'invoiceNumber', e.target.value)} />
             </Field>
             <Field label="Date">
-              <input style={s.input} value={data.meta.date}
+              <input className="ie-input" value={data.meta.date}
                 onChange={e => handleChange('meta', 'date', e.target.value)} />
             </Field>
             <Field label="Due Statement">
-              <input style={s.input} value={data.meta.dueDate} placeholder="On Receipt"
+              <input className="ie-input" value={data.meta.dueDate} placeholder="On Receipt"
                 onChange={e => handleChange('meta', 'dueDate', e.target.value)} />
             </Field>
           </div>
@@ -305,10 +305,10 @@ const InvoiceEditor = ({ data, onChange }) => {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {data.items.map((item, index) => (
-              <div key={item.id} style={s.itemCard}>
-                <div style={s.itemCardHeader}>
-                  <span style={s.itemBadge}>ITEM #{index + 1}</span>
-                  <button style={s.itemDeleteBtn} onClick={() => removeItem(item.id)}>
+              <div key={item.id} className="ie-item-card">
+                <div className="ie-item-card-header">
+                  <span className="ie-item-badge">ITEM #{index + 1}</span>
+                  <button className="ie-item-delete-btn" onClick={() => removeItem(item.id)}>
                     <LuTrash2 size={13} />
                   </button>
                 </div>
@@ -331,7 +331,8 @@ const InvoiceEditor = ({ data, onChange }) => {
 
                 <Field label="Additional Notes">
                   <textarea
-                    style={{ ...s.input, resize: 'vertical', minHeight: 60, lineHeight: 1.5 }}
+                    className="ie-input"
+                    style={{ resize: 'vertical', minHeight: 60, lineHeight: 1.5 }}
                     value={item.longDescription}
                     placeholder="Optional notes or details…"
                     onChange={e => handleItemChange(item.id, 'longDescription', e.target.value)}
@@ -340,19 +341,19 @@ const InvoiceEditor = ({ data, onChange }) => {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 2fr', gap: 8 }}>
                   <Field label="Rate (₹)">
-                    <input style={{ ...s.input, textAlign: 'right' }} type="number" value={item.rate}
+                    <input className="ie-input" style={{ textAlign: 'right' }} type="number" value={item.rate}
                       onChange={e => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)} />
                   </Field>
                   <Field label="Qty">
-                    <input style={{ ...s.input, textAlign: 'center' }} type="number" value={item.quantity}
+                    <input className="ie-input" style={{ textAlign: 'center' }} type="number" value={item.quantity}
                       onChange={e => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} />
                   </Field>
                   <Field label="GST %">
-                    <input style={{ ...s.input, textAlign: 'center' }} type="number" value={item.gstRate}
+                    <input className="ie-input" style={{ textAlign: 'center' }} type="number" value={item.gstRate}
                       onChange={e => handleItemChange(item.id, 'gstRate', parseFloat(e.target.value) || 0)} />
                   </Field>
                   <Field label="Amount">
-                    <div style={s.amountBox}>
+                    <div className="ie-amount-box">
                       ₹{(item.rate * item.quantity).toLocaleString('en-IN')}
                     </div>
                   </Field>
@@ -367,32 +368,33 @@ const InvoiceEditor = ({ data, onChange }) => {
             ))}
           </div>
 
-          <button style={s.addItemBtn} onClick={addItem}>
+          <button className="ie-add-item-btn" onClick={addItem}>
             <LuPlus size={14} style={{ marginRight: 6 }} /> Add Line Item
           </button>
 
-          <div style={s.divider} />
+          <div className="ie-divider" />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Field label="Global Tax Rate (%)">
-              <input style={s.input} type="number" value={data.taxRate} placeholder="18"
+              <input className="ie-input" type="number" value={data.taxRate} placeholder="18"
                 onChange={e => onChange(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))} />
             </Field>
             <Field label="Discount (₹)">
-              <input style={s.input} type="number" value={data.discount} placeholder="0"
+              <input className="ie-input" type="number" value={data.discount} placeholder="0"
                 onChange={e => onChange(prev => ({ ...prev, discount: parseFloat(e.target.value) || 0 }))} />
             </Field>
           </div>
         </Section>
 
         {/* ── Footer Notes ── */}
-        <div style={s.section}>
+        <div className="ie-section">
           <div style={{ padding: '14px 16px 6px' }}>
             <Label>Footer / Payment Notes</Label>
           </div>
           <div style={{ padding: '0 16px 16px' }}>
             <textarea
-              style={{ ...s.input, resize: 'vertical', minHeight: 80, lineHeight: 1.6 }}
+              className="ie-input"
+              style={{ resize: 'vertical', minHeight: 80, lineHeight: 1.6 }}
               value={data.footerNotes}
               placeholder="e.g. Bank Account Details or Terms & Conditions"
               onChange={e => onChange(prev => ({ ...prev, footerNotes: e.target.value }))}
@@ -418,289 +420,5 @@ const ClientRow = ({ icon, label, value, mono }) => (
     </div>
   </div>
 );
-
-// ─── Styles ───────────────────────────────────────────────────────────────────
-
-const s = {
-  editor: {
-    fontFamily: '"DM Sans", system-ui, sans-serif',
-    color: '#0f172a',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 0,
-    height: '100%',
-    overflowY: 'auto',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 12,
-    padding: '20px 16px 16px',
-    borderBottom: '1px solid #e2e8f0',
-    marginBottom: 8,
-  },
-  headerIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 9,
-    background: '#0f172a',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: 800,
-    letterSpacing: '-0.01em',
-    margin: '0 0 2px',
-    color: '#0f172a',
-  },
-  headerSub: {
-    fontSize: 11,
-    color: '#94a3b8',
-    margin: 0,
-    fontWeight: 500,
-  },
-  // Sections
-  section: {
-    border: '1px solid #e2e8f0',
-    borderRadius: 10,
-    overflow: 'hidden',
-    background: 'white',
-  },
-  sectionTrigger: {
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '12px 14px',
-    background: 'white',
-    border: 'none',
-    cursor: 'pointer',
-    gap: 8,
-  },
-  sectionLeft: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-  },
-  sectionIcon: {
-    display: 'flex',
-    alignItems: 'center',
-    color: '#475569',
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: 700,
-    color: '#0f172a',
-    letterSpacing: '-0.01em',
-  },
-  sectionBadge: {
-    fontSize: 10,
-    fontWeight: 700,
-    background: '#f1f5f9',
-    color: '#475569',
-    border: '1px solid #e2e8f0',
-    borderRadius: 20,
-    padding: '1px 7px',
-  },
-  sectionBody: {
-    padding: '4px 14px 16px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 12,
-    borderTop: '1px solid #f1f5f9',
-  },
-  // Form elements
-  label: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: '#475569',
-    letterSpacing: '0.01em',
-  },
-  input: {
-    width: '100%',
-    padding: '9px 11px',
-    fontSize: 13,
-    border: '1px solid #e2e8f0',
-    borderRadius: 7,
-    outline: 'none',
-    color: '#0f172a',
-    background: 'white',
-    boxSizing: 'border-box',
-    fontFamily: 'inherit',
-  },
-  select: {
-    width: '100%',
-    padding: '9px 32px 9px 11px',
-    fontSize: 13,
-    border: '1px solid #e2e8f0',
-    borderRadius: 7,
-    outline: 'none',
-    color: '#0f172a',
-    background: 'white',
-    cursor: 'pointer',
-    appearance: 'none',
-    boxSizing: 'border-box',
-    fontFamily: 'inherit',
-  },
-  inputIconWrap: { position: 'relative' },
-  inputIcon: { position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' },
-  divider: { height: 1, background: '#f1f5f9', margin: '4px 0' },
-  // Logo
-  logoUpload: {
-    width: '100%',
-    height: 80,
-    border: '1px dashed #e2e8f0',
-    borderRadius: 8,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    cursor: 'pointer',
-    background: '#f8fafc',
-    overflow: 'hidden',
-  },
-  logoImg: {
-    maxHeight: 64,
-    maxWidth: '100%',
-    objectFit: 'contain',
-  },
-  logoPlaceholder: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  logoOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: 'rgba(15,23,42,0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    color: 'white',
-    fontSize: 11,
-    fontWeight: 600,
-    borderRadius: 4,
-  },
-  // Buttons
-  btnOutline: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    padding: '9px 14px',
-    fontSize: 12,
-    fontWeight: 600,
-    border: '1px solid #e2e8f0',
-    borderRadius: 7,
-    background: 'white',
-    color: '#334155',
-    cursor: 'pointer',
-  },
-  addItemBtn: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    padding: '10px',
-    fontSize: 13,
-    fontWeight: 600,
-    border: '1px dashed #cbd5e1',
-    borderRadius: 8,
-    background: '#f8fafc',
-    color: '#475569',
-    cursor: 'pointer',
-  },
-  // Client card
-  clientCard: {
-    background: '#f8fafc',
-    border: '1px solid #e2e8f0',
-    borderRadius: 8,
-    padding: '4px 12px 0',
-  },
-  clientFooter: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '10px 0 8px',
-  },
-  activePill: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: 6,
-    fontSize: 10,
-    fontWeight: 700,
-    color: '#16a34a',
-    letterSpacing: '0.08em',
-    textTransform: 'uppercase',
-  },
-  activeDot: {
-    width: 6,
-    height: 6,
-    borderRadius: '50%',
-    background: '#22c55e',
-    display: 'inline-block',
-  },
-  // Line items
-  itemCard: {
-    border: '1px solid #e2e8f0',
-    borderRadius: 9,
-    padding: '12px',
-    background: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 10,
-  },
-  itemCardHeader: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  itemBadge: {
-    fontSize: 10,
-    fontWeight: 700,
-    letterSpacing: '0.1em',
-    color: '#475569',
-    background: '#f1f5f9',
-    border: '1px solid #e2e8f0',
-    borderRadius: 20,
-    padding: '2px 9px',
-  },
-  itemDeleteBtn: {
-    width: 28,
-    height: 28,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    border: '1px solid #fecaca',
-    borderRadius: 7,
-    background: '#fff5f5',
-    color: '#dc2626',
-    cursor: 'pointer',
-  },
-  amountBox: {
-    height: 36,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    padding: '0 11px',
-    background: '#f8fafc',
-    border: '1px solid #e2e8f0',
-    borderRadius: 7,
-    fontSize: 13,
-    fontWeight: 700,
-    color: '#0f172a',
-  },
-  spinner: {
-    width: 12,
-    height: 12,
-    border: '2px solid #e2e8f0',
-    borderTop: '2px solid #94a3b8',
-    borderRadius: '50%',
-    animation: 'spin 0.7s linear infinite',
-  },
-};
 
 export default InvoiceEditor;
