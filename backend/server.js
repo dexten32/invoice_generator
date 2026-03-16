@@ -2,6 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
+const customerRoutes = require('./routes/customers');
+const serviceRoutes = require('./routes/services');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -18,11 +20,14 @@ app.use(express.json());
 
 // --- Routes ---
 app.use('/api/auth', authRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/services', serviceRoutes);
 
 // --- Health Check ---
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
 
 // --- 404 Handler ---
 app.use((req, res) => {

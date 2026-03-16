@@ -132,4 +132,91 @@
     font-weight: 800 !important;
     color: #94a3b8 !important;
     margin-bottom: 8px !important;
-}
+}
+
+/* ── Styled Native Select ──────────────────────────────────────── */
+.editor-select-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.editor-select {
+    width: 100%;
+    height: 44px;
+    padding: 0 2.75rem 0 1rem;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #1e293b;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.25s ease;
+}
+
+.editor-select:hover {
+    border-color: #cbd5e1;
+    background-color: #ffffff;
+}
+
+.editor-select:focus {
+    border-color: hsl(var(--primary));
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.08);
+}
+
+.editor-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.editor-select-icon {
+    position: absolute;
+    right: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    color: #94a3b8;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+.editor-select-wrap:focus-within .editor-select-icon {
+    color: hsl(var(--primary));
+}
+
+/* ── Customer Detail Read-only Card ───────────────────────────── */
+.customer-detail-card {
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f0f7ff 0%, #e8f4ff 100%);
+    border: 1px solid #bfdbfe;
+    animation: fade-in 0.3s ease-out;
+}
+
+.customer-detail-item {
+    flex: 1;
+    min-width: 140px;
+}
+
+.customer-detail-label {
+    font-size: 9px !important;
+    font-weight: 800 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.15em !important;
+    color: #60a5fa !important;
+    margin-bottom: 2px !important;
+}
+
+.customer-detail-value {
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    color: #1e40af !important;
+    letter-spacing: normal !important;
+    text-transform: none !important;
+}
+

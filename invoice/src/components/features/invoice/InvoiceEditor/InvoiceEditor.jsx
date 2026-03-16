@@ -9,6 +9,7 @@ import {
     Heading,
     Flex,
     Separator,
+    Spinner,
 } from '@chakra-ui/react';
 import {
     AccordionItem,
@@ -30,20 +31,115 @@ import {
     LuUpload,
     LuGlobe,
     LuMail,
-    LuPhone
+    LuChevronDown,
+    LuPackage,
+    LuCircleAlert,
 } from 'react-icons/lu';
+import { useApiData } from '@/hooks/useApiData';
 import './InvoiceEditor.css';
 
+// ─── Reusable styled select ──────────────────────────────────────────────────
+const StyledSelect = ({ id, value, onChange, disabled, children, placeholder }) => (
+    <div className="editor-select-wrap">
+        <select
+            id={id}
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+            className="editor-select"
+        >
+            {placeholder && <option value="">{placeholder}</option>}
+            {children}
+        </select>
+        <LuChevronDown className="editor-select-icon" />
+    </div>
+);
+
+// ─── Fetch state display helpers ─────────────────────────────────────────────
+const FetchLoading = ({ label }) => (
+    <Flex align="center" gap="2" py="2" color="gray.400">
+        <Spinner size="xs" />
+        <Text fontSize="xs">Loading {label}…</Text>
+    </Flex>
+);
+
+const FetchError = ({ message }) => (
+    <Flex align="center" gap="2" py="2" color="red.400">
+        <LuCircleAlert size="14" />
+        <Text fontSize="xs">{message}</Text>
+    </Flex>
+);
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 const InvoiceEditor = ({ data, onChange }) => {
     if (!data) return null;
 
+    // Fetch customers and services from backend
+    const {
+        data: customersData,
+        isLoading: customersLoading,
+        error: customersError,
+    } = useApiData('/customers');
+
+    const {
+        data: servicesData,
+        isLoading: servicesLoading,
+        error: servicesError,
+    } = useApiData('/services');
+
+    const customers = customersData?.customers ?? [];
+    const services = servicesData?.services ?? [];
+
+    // ── Handlers ──────────────────────────────────────────────────────────────
     const handleChange = (section, field, value) => {
         onChange((prev) => ({
             ...prev,
-            [section]: {
-                ...prev[section],
-                [field]: value,
+            [section]: { ...prev[section], [field]: value },
+        }));
+    };
+
+    // When a customer is picked, auto-fill all client fields
+    const handleCustomerSelect = (e) => {
+        const id = e.target.value;
+        const customer = customers.find((c) => c.id === id);
+        if (!customer) {
+            onChange((prev) => ({
+                ...prev,
+                client: { id: '', name: '', email: '', phone: '', gstNumber: '', address1: '', address2: '' },
+            }));
+            return;
+        }
+        onChange((prev) => ({
+            ...prev,
+            client: {
+                id: customer.id,
+                name: customer.name,
+                email: customer.email ?? '',
+                phone: customer.phone ?? '',
+                gstNumber: customer.gstNumber ?? '',
+                address1: '',
+                address2: '',
             },
+        }));
+    };
+
+    // When a service is picked for a line item, auto-fill rate, description, gstRate
+    const handleServiceSelect = (itemId, serviceId) => {
+        const service = services.find((s) => s.id === serviceId);
+        onChange((prev) => ({
+            ...prev,
+            items: prev.items.map((item) =>
+                item.id === itemId
+                    ? {
+                        ...item,
+                        serviceId: serviceId,
+                        description: service?.name ?? '',
+                        longDescription: service?.description ?? '',
+                        rate: service?.defaultPrice ?? 0,
+                        gstRate: service?.gstRate ?? 0,
+                    }
+                    : item
+            ),
         }));
     };
 
@@ -63,10 +159,12 @@ const InvoiceEditor = ({ data, onChange }) => {
                 ...prev.items,
                 {
                     id: Date.now(),
-                    description: 'New Item',
+                    serviceId: '',
+                    description: '',
                     longDescription: '',
                     rate: 0,
                     quantity: 1,
+                    gstRate: 0,
                 },
             ],
         }));
@@ -83,13 +181,12 @@ const InvoiceEditor = ({ data, onChange }) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onloadend = () => {
-                handleChange('business', 'logo', reader.result);
-            };
+            reader.onloadend = () => handleChange('business', 'logo', reader.result);
             reader.readAsDataURL(file);
         }
     };
 
+    // ── Render ────────────────────────────────────────────────────────────────
     return (
         <div className="invoice-editor">
             <header className="editor-header">
@@ -104,8 +201,9 @@ const InvoiceEditor = ({ data, onChange }) => {
                 </Flex>
             </header>
 
-            <AccordionRoot collapsible defaultValue={["items"]} variant="subtle" spaceY="4">
-                {/* Business Information */}
+            <AccordionRoot collapsible defaultValue={['items']} variant="subtle" spaceY="4">
+
+                {/* ── Business Information ── */}
                 <AccordionItem value="business">
                     <AccordionItemTrigger fontWeight="bold" color="gray.800">
                         <Flex align="center" gap="2">
@@ -115,13 +213,12 @@ const InvoiceEditor = ({ data, onChange }) => {
                     </AccordionItemTrigger>
                     <AccordionItemContent>
                         <Stack gap="4" p="2">
+                            {/* Logo upload */}
                             <Box className="logo-upload-area" onClick={() => document.getElementById('logo-input').click()}>
                                 {data.business.logo ? (
                                     <Box position="relative">
                                         <img src={data.business.logo} alt="Logo Preview" className="logo-preview-img" />
-                                        <Box className="logo-overlay">
-                                            <LuUpload /> Change Logo
-                                        </Box>
+                                        <Box className="logo-overlay"><LuUpload /> Change Logo</Box>
                                     </Box>
                                 ) : (
                                     <Stack align="center" gap="1" color="gray.500">
@@ -129,13 +226,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                                         <Text fontSize="xs">Upload Business Logo</Text>
                                     </Stack>
                                 )}
-                                <input
-                                    id="logo-input"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleLogoUpload}
-                                    hidden
-                                />
+                                <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} hidden />
                             </Box>
 
                             <Field label="Business Name">
@@ -194,7 +285,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                     </AccordionItemContent>
                 </AccordionItem>
 
-                {/* Client Information */}
+                {/* ── Client Information — Customer Dropdown ── */}
                 <AccordionItem value="client">
                     <AccordionItemTrigger fontWeight="bold" color="gray.800">
                         <Flex align="center" gap="2">
@@ -204,50 +295,59 @@ const InvoiceEditor = ({ data, onChange }) => {
                     </AccordionItemTrigger>
                     <AccordionItemContent>
                         <Stack gap="4" p="2">
-                            <Field label="Client Name">
-                                <Input
-                                    value={data.client.name}
-                                    onChange={(e) => handleChange('client', 'name', e.target.value)}
-                                    placeholder="Enter client's legal name"
-                                />
+                            <Field label="Select Customer">
+                                {customersLoading && <FetchLoading label="customers" />}
+                                {customersError && <FetchError message="Cannot connect to backend. Start the server on port 4000." />}
+                                {!customersLoading && !customersError && (
+                                    <StyledSelect
+                                        id="customer-select"
+                                        value={data.client?.id ?? ''}
+                                        onChange={handleCustomerSelect}
+                                        placeholder={customers.length === 0 ? '— No customers in database —' : '— Choose a customer —'}
+                                    >
+                                        {customers.map((c) => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))}
+                                    </StyledSelect>
+                                )}
                             </Field>
-                            <Stack direction="row" gap="4">
-                                <Field label="Address Line 1" flex="1">
-                                    <Input
-                                        value={data.client.address1}
-                                        onChange={(e) => handleChange('client', 'address1', e.target.value)}
-                                    />
-                                </Field>
-                                <Field label="Address Line 2" flex="1">
-                                    <Input
-                                        value={data.client.address2}
-                                        onChange={(e) => handleChange('client', 'address2', e.target.value)}
-                                    />
-                                </Field>
-                            </Stack>
-                            <Stack direction="row" gap="4">
-                                <Field label="Email" flex="1">
-                                    <Input
-                                        type="email"
-                                        value={data.client.email}
-                                        onChange={(e) => handleChange('client', 'email', e.target.value)}
-                                    />
-                                </Field>
-                                <Field label="Phone" flex="1">
-                                    <Flex align="center" gap="2" width="full">
-                                        <LuPhone size="16" className="text-gray-400" />
-                                        <Input
-                                            value={data.client.phone}
-                                            onChange={(e) => handleChange('client', 'phone', e.target.value)}
-                                        />
+
+                            {/* Read-only preview of selected customer details */}
+                            {data.client?.name && (
+                                <Box className="customer-detail-card">
+                                    <Flex gap="3" wrap="wrap">
+                                        {data.client.name && (
+                                            <Box className="customer-detail-item">
+                                                <Text className="customer-detail-label">Name</Text>
+                                                <Text className="customer-detail-value">{data.client.name}</Text>
+                                            </Box>
+                                        )}
+                                        {data.client.email && (
+                                            <Box className="customer-detail-item">
+                                                <Text className="customer-detail-label">Email</Text>
+                                                <Text className="customer-detail-value">{data.client.email}</Text>
+                                            </Box>
+                                        )}
+                                        {data.client.phone && (
+                                            <Box className="customer-detail-item">
+                                                <Text className="customer-detail-label">Phone</Text>
+                                                <Text className="customer-detail-value">{data.client.phone}</Text>
+                                            </Box>
+                                        )}
+                                        {data.client.gstNumber && (
+                                            <Box className="customer-detail-item">
+                                                <Text className="customer-detail-label">GST</Text>
+                                                <Text className="customer-detail-value">{data.client.gstNumber}</Text>
+                                            </Box>
+                                        )}
                                     </Flex>
-                                </Field>
-                            </Stack>
+                                </Box>
+                            )}
                         </Stack>
                     </AccordionItemContent>
                 </AccordionItem>
 
-                {/* Invoice Metadata */}
+                {/* ── Invoice Metadata ── */}
                 <AccordionItem value="meta">
                     <AccordionItemTrigger fontWeight="bold" color="gray.800">
                         <Flex align="center" gap="2">
@@ -281,7 +381,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                     </AccordionItemContent>
                 </AccordionItem>
 
-                {/* Line Items */}
+                {/* ── Line Items — Service Picker ── */}
                 <AccordionItem value="items">
                     <AccordionItemTrigger fontWeight="bold" color="gray.800">
                         <Flex align="center" gap="2">
@@ -291,6 +391,9 @@ const InvoiceEditor = ({ data, onChange }) => {
                     </AccordionItemTrigger>
                     <AccordionItemContent>
                         <Stack gap="6" p="2">
+                            {servicesLoading && <FetchLoading label="services" />}
+                            {servicesError && <FetchError message="Cannot connect to backend. Start the server on port 4000." />}
+
                             {data.items.map((item, index) => (
                                 <Box
                                     key={item.id}
@@ -319,27 +422,42 @@ const InvoiceEditor = ({ data, onChange }) => {
                                             </IconButton>
                                         </Flex>
 
-                                        <Field label="Description">
-                                            <Input
-                                                value={item.description}
-                                                onChange={(e) => handleItemChange(item.id, 'description', e.target.value)}
-                                                placeholder="Service or product name"
-                                                variant="outline"
-                                            />
+                                        {/* Service selector */}
+                                        <Field label="Select Service / Product">
+                                            <StyledSelect
+                                                id={`service-select-${item.id}`}
+                                                value={item.serviceId ?? ''}
+                                                onChange={(e) => handleServiceSelect(item.id, e.target.value)}
+                                                disabled={servicesLoading}
+                                                placeholder={
+                                                    servicesLoading
+                                                        ? 'Loading services…'
+                                                        : services.length === 0
+                                                        ? '— No services in database —'
+                                                        : '— Choose a service —'
+                                                }
+                                            >
+                                                {services.map((s) => (
+                                                    <option key={s.id} value={s.id}>
+                                                        {s.name} — ₹{Number(s.defaultPrice).toLocaleString('en-IN')} ({s.gstRate}% GST)
+                                                    </option>
+                                                ))}
+                                            </StyledSelect>
                                         </Field>
 
+                                        {/* Additional notes — still editable */}
                                         <Field label="Additional Notes (Optional)">
                                             <Textarea
                                                 value={item.longDescription}
                                                 onChange={(e) => handleItemChange(item.id, 'longDescription', e.target.value)}
-                                                placeholder="Detailed notes"
+                                                placeholder="Detailed notes or description"
                                                 size="sm"
                                                 rows={2}
                                             />
                                         </Field>
 
                                         <Flex gap="4">
-                                            <Field label="Rate" flex="2">
+                                            <Field label="Rate (₹)" flex="2">
                                                 <Input
                                                     type="number"
                                                     value={item.rate}
@@ -355,14 +473,39 @@ const InvoiceEditor = ({ data, onChange }) => {
                                                     textAlign="center"
                                                 />
                                             </Field>
+                                            <Field label="GST %" flex="1">
+                                                <Input
+                                                    type="number"
+                                                    value={item.gstRate}
+                                                    onChange={(e) => handleItemChange(item.id, 'gstRate', parseFloat(e.target.value) || 0)}
+                                                    textAlign="center"
+                                                />
+                                            </Field>
                                             <Field label="Amount" flex="2">
-                                                <Box bg="gray.50" px="3" h="40px" display="flex" align="center" borderRadius="md" border="1px solid #e2e8f0">
-                                                    <Text fontWeight="bold" color="gray.700" my="auto" ml="auto">
+                                                <Box
+                                                    bg="gray.50"
+                                                    px="3"
+                                                    h="40px"
+                                                    display="flex"
+                                                    alignItems="center"
+                                                    borderRadius="md"
+                                                    border="1px solid #e2e8f0"
+                                                >
+                                                    <Text fontWeight="bold" color="gray.700" ml="auto">
                                                         ₹{(item.rate * item.quantity).toLocaleString('en-IN')}
                                                     </Text>
                                                 </Box>
                                             </Field>
                                         </Flex>
+
+                                        {/* Per-item GST preview */}
+                                        {item.gstRate > 0 && (
+                                            <Flex justify="flex-end">
+                                                <Text fontSize="xs" color="gray.500">
+                                                    + ₹{((item.rate * item.quantity * item.gstRate) / 100).toLocaleString('en-IN')} GST ({item.gstRate}%)
+                                                </Text>
+                                            </Flex>
+                                        )}
                                     </Stack>
                                 </Box>
                             ))}
@@ -381,11 +524,11 @@ const InvoiceEditor = ({ data, onChange }) => {
                             <Separator />
 
                             <Stack direction="row" gap="4">
-                                <Field label="Tax Rate (%)" flex="1">
+                                <Field label="Tax Rate (%) — global" flex="1">
                                     <Input
                                         type="number"
                                         value={data.taxRate}
-                                        onChange={(e) => onChange(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))}
+                                        onChange={(e) => onChange((prev) => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))}
                                         placeholder="18"
                                     />
                                 </Field>
@@ -393,7 +536,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                                     <Input
                                         type="number"
                                         value={data.discount}
-                                        onChange={(e) => onChange(prev => ({ ...prev, discount: parseFloat(e.target.value) || 0 }))}
+                                        onChange={(e) => onChange((prev) => ({ ...prev, discount: parseFloat(e.target.value) || 0 }))}
                                         placeholder="0"
                                     />
                                 </Field>
@@ -407,7 +550,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                 <Field label="Footer / Payment Notes">
                     <Textarea
                         value={data.footerNotes}
-                        onChange={(e) => onChange(prev => ({ ...prev, footerNotes: e.target.value }))}
+                        onChange={(e) => onChange((prev) => ({ ...prev, footerNotes: e.target.value }))}
                         placeholder="e.g. Bank Account Details or Terms"
                         variant="plain"
                         size="sm"

@@ -96,3 +96,40 @@ This logbook documents the chronological history of changes, features added, and
 - **Updated**: `.env` and `.env.example` with `DATABASE_URL` and `DIRECT_URL` placeholders for Supabase (Transaction-mode pooler URL and direct connection URL).
 - **Installed**: `prisma`, `@prisma/client`, `typescript`, `ts-node`, `@types/node` as dev dependencies in the backend.
 
+---
+
+### 🕑 10:33 - Invoice Editor Dropdown Integration + Company Logo
+
+#### Schema
+- **Updated**: `prisma/schema.prisma` — added `logo String?` field to the `Company` model.
+
+#### Backend — New Data API Routes
+- **Added**: `routes/customers.js` — `GET /api/customers` (list, ordered by name) and `GET /api/customers/:id` (single); queries via Prisma.
+- **Added**: `routes/services.js` — `GET /api/services` (list, ordered by name) and `GET /api/services/:id` (single); Prisma `Decimal` fields serialized to `Number` for JSON.
+- **Updated**: `server.js` — mounted `/api/customers` and `/api/services`.
+
+#### Frontend — Dropdown UI
+- **Added**: `src/hooks/useApiData.js` — generic fetch hook (`useApiData(path)`) that attaches the JWT `Authorization` header automatically, returns `{ data, isLoading, error, refetch }`.
+- **Rewritten**: `InvoiceEditor.jsx`:
+  - **Client section**: replaced all free-text inputs with a single styled customer `<select>` dropdown. Selecting a customer auto-populates a read-only detail card (name, email, phone, GST number).
+  - **Line Items section**: replaced description text input per item with a service `<select>` dropdown. Selecting a service auto-fills `rate`, `description`, and `gstRate` from the service record. Rate, Qty, GST %, and Notes remain editable. A per-item GST preview is shown.
+  - Both dropdowns render graceful loading and error states when the backend is unavailable.
+- **Updated**: `InvoiceEditor.css` — added `.editor-select`, `.editor-select-wrap`, `.editor-select-icon`, `.customer-detail-card`, and related styles.
+- **Updated**: `src/constants/invoiceDefaults.js` — added `serviceId`, `gstRate` to item default shape; added `id`, `gstNumber` to client default shape.
+
+---
+
+### 🕑 10:40 - Bug Fix: Prisma Config Missing dotenv
+
+- **Fixed**: `prisma.config.ts` — added `import 'dotenv/config'` at the top. Prisma CLI executes this file in isolation (without automatically loading `.env`), so `process.env.DATABASE_URL` was `undefined`, causing the error: *"The datasource.url property is required"*. The dotenv import ensures env variables are loaded before the config is read.
+
+---
+
+### 🕑 10:43 - Bug Fix: Prisma v7 Missing Driver Adapter
+
+- **Root cause**: Prisma v7 removed the legacy binary query engine. `PrismaClient` now requires either a driver adapter or Prisma Accelerate URL — passing connection URLs in the schema alone is no longer sufficient.
+- **Fixed**: `lib/prisma.js` — replaced the plain `new PrismaClient()` with an adapter-backed instance using `@prisma/adapter-pg` and a `pg.Pool` seeded from `process.env.DATABASE_URL`.
+- **Installed**: `pg` and `@prisma/adapter-pg` packages.
+- **Note**: Prisma auto-promoted `driverAdapters` out of preview in v7, so `previewFeatures = ["driverAdapters"]` in `schema.prisma` was added then immediately removed (it generated a deprecation warning and is not required).
+- **Ran**: `npx prisma generate` to regenerate the Prisma Client with adapter support.
+

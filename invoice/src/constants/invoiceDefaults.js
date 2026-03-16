@@ -9,11 +9,13 @@ export const DEFAULT_INVOICE_DATA = {
         logo: null,
     },
     client: {
+        id: '',
         name: 'Client Name',
         address1: '456 Client Ave',
         address2: 'City, State, Zip',
         phone: '9876543210',
-        email: 'name@client.com'
+        email: 'name@client.com',
+        gstNumber: '',
     },
     meta: {
         invoiceNumber: 'INV0001',
@@ -23,13 +25,16 @@ export const DEFAULT_INVOICE_DATA = {
     items: [
         {
             id: Date.now(),
+            serviceId: '',
             description: 'Sample Service',
             longDescription: 'Description of the service provided.',
             rate: 1000,
-            quantity: 1
+            quantity: 1,
+            gstRate: 18,
         }
     ],
     taxRate: 18,
     discount: 0,
     footerNotes: 'Thank you for your business!'
 };
+

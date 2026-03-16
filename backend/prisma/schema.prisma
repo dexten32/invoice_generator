@@ -2,6 +2,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
+
 datasource db {
   provider = "postgresql"
 }
@@ -14,6 +15,7 @@ model Company {
   companyName String  @map("company_name")
   gstNumber   String? @map("gst_number")
   address     String?
+  logo        String? // URL or base64 data URI
 
   invoices Invoice[]
 
