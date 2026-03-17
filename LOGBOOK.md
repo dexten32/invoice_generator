@@ -165,3 +165,27 @@ This logbook documents the chronological history of changes, features added, and
 - **Added**: Missing CSS for `.ip-creator-badge` and `.ip-creator-avatar` in `InvoicesPage.css`. 
 - **Improved**: Applied `white-space: nowrap` to the creator name to ensure "U System" (or similar) stays on a single line, maintaining table alignment.
 - **Verify**: Successfully ran `npm run build` in the `invoice` package to confirm CSS integrity and build status.
+
+---
+
+## 📅 March 17, 2026
+
+### 🕑 11:30 - UI Refinements & User Experience
+- **Fixed**: Updated `SetupPasswordModal.jsx` to ensure the temporary reference password persists across page refreshes by fetching it from the backend `/me` endpoint.
+- **Added**: Implemented a 12-character random fallback string for the temporary reference to avoid showing "GENERATING..." in the UI.
+- **Improved**: Repurposed the brand icon in the sidebar as a functional toggle button. Removed the redundant and overflowing chevron collapse button.
+- **Added**: Smooth CSS transitions for the sidebar's expanded and collapsed states, maximizing screen space for the main content area.
+
+### 🕑 11:45 - Docker Orchestration & Infrastructure
+- **Added**: Full Dockerization of the application stack.
+  - `backend/Dockerfile`: Node.js 20 environment with automated Prisma client generation.
+  - `invoice/Dockerfile`: Multi-stage build with Nginx for optimized SPA serving.
+  - `docker-compose.yml`: Orchestrates Backend, Frontend, and a local PostgreSQL database.
+- **Fixed**: Resolved Prisma client resolution issues in the Docker build by shifting `@prisma/client` to main dependencies.
+- **Fixed**: Correctly passed `VITE_GOOGLE_CLIENT_ID` as a build argument to ensure Google Auth works within the containerized environment.
+- **Updated**: Configured backend CORS to permit requests from the dockerized frontend at `http://localhost`.
+
+### 🕑 12:00 - Localization & Data Scannability
+- **Localization**: Switched the currency symbol from `$` to `₹` and updated the `DollarSign` icon to `IndianRupee` in the product catalog form.
+- **Feature**: Implemented descending numeric sort for the Invoice Archive list, ensuring the latest invoices appear at the top by default.
+- **Cleanup**: Removed the "Sign Up" link from the `LoginPage.jsx` to streamline the authentication flow.

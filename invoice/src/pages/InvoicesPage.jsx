@@ -28,10 +28,12 @@ const InvoicesPage = () => {
   const totalRevenue = invoices.reduce((sum, inv) => sum + Number(inv.totalAmount), 0);
   const totalInvoices = invoices.length;
 
-  const filteredInvoices = invoices.filter(inv =>
-    inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    inv.customer?.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredInvoices = invoices
+    .filter(inv =>
+      inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      inv.customer?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => b.invoiceNumber.localeCompare(a.invoiceNumber, undefined, { numeric: true, sensitivity: 'base' }));
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {

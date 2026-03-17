@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: invoice-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: invoice_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+    container_name: invoice-backend
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - DATABASE_URL=postgresql://postgres.flealwumglrtnqqpsvfp:Passwrod@12354@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?pgbouncer=true
+      - JWT_SECRET=6XFA5ldcW463VPrbUCWqSftvHUKfb1cwlTZ6ZwgybWa
+      - GOOGLE_CLIENT_ID=1017820093725-te751dt0okili4em79ifi00gcbcb2c4g.apps.googleusercontent.com
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./invoice
+      args:
+        - VITE_API_URL=http://localhost:4000/api
+        - VITE_GOOGLE_CLIENT_ID=1017820093725-te751dt0okili4em79ifi00gcbcb2c4g.apps.googleusercontent.com
+    container_name: invoice-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

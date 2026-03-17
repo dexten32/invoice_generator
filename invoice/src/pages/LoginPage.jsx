@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LayoutDashboard, Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
@@ -206,9 +206,6 @@ function LoginPage() {
             />
           </div>
 
-          <p className="login-signup-link">
-            Don't have an account? <Link to="/signup">Sign Up</Link>
-          </p>
         </div>
       </div>
     </div>

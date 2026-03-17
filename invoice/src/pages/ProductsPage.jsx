@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import './ProductsPage.css';
 import {
-  Plus, Trash2, Tag, DollarSign, Search,
+  Plus, Trash2, Tag, IndianRupee, Search,
   Filter, ArrowUpRight, ShoppingBag,
   PlusCircle, Box, Archive, ChevronRight, Package
 } from 'lucide-react';
@@ -132,7 +132,7 @@ const ProductsPage = () => {
                 <div>
                   <label className="pp-label">Base Price (₹) <span style={{ color: '#ef4444' }}>*</span></label>
                   <div style={{ position: 'relative', marginTop: 5 }}>
-                    <DollarSign size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                    <IndianRupee size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
                     <input
                       className="pp-input"
                       style={{ paddingLeft: 34 }}
