@@ -75,7 +75,7 @@ router.post('/', authMiddleware, async (req, res) => {
     const formattedItems = items.map(item => {
       const q = Number(item.quantity) || 1;
       const rate = Number(item.rate) || 0;
-      const lineTot = q * rate;
+      const lineTot = Math.round(q * rate * 100) / 100;
       subtotal += lineTot;
       return {
         serviceId: item.serviceId || null,
@@ -89,8 +89,11 @@ router.post('/', authMiddleware, async (req, res) => {
 
     const safeDiscount = Number(discount) || 0;
     const safeTaxRate = Number(taxRate) || 0;
-    const taxAmount = (subtotal - safeDiscount) * (safeTaxRate / 100);
-    const totalAmount = subtotal - safeDiscount + taxAmount;
+    
+    // Final rounding before DB insertion
+    const finalSubtotal = Math.round(subtotal * 100) / 100;
+    const taxAmount = Math.round((finalSubtotal - safeDiscount) * (safeTaxRate / 100) * 100) / 100;
+    const totalAmount = Math.round((finalSubtotal - safeDiscount + taxAmount) * 100) / 100;
 
     let issueDate = new Date();
     if (meta?.date) {
@@ -106,7 +109,7 @@ router.post('/', authMiddleware, async (req, res) => {
           customerId: client.id,
           createdById: userId, // Link to the user who created it
           issueDate,
-          subtotal,
+          subtotal: finalSubtotal,
           taxAmount,
           totalAmount,
           status: 'SENT',

@@ -1,8 +1,11 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import InvoiceEditor from '../components/features/invoice/InvoiceEditor/InvoiceEditor';
 import InvoicePreview from '../components/features/invoice/InvoicePreview/InvoicePreview';
 import { useInvoice } from '../hooks/useInvoice';
+import { useToast } from '../context/ToastContext';
+import '../components/features/invoice/InvoiceEditor/InvoiceEditor.css';
 
 const EditorPage = () => {
   const [invoiceData, setInvoiceData] = useInvoice();
@@ -58,14 +61,16 @@ const EditorPage = () => {
     }
   }, [location.state, setInvoiceData, navigate, location.pathname, invoiceData.business]);
 
+  const { showToast } = useToast();
+
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start">
+    <div className="flex flex-col lg:flex-row gap-8 items-start relative">
       <div className="w-full lg:w-1/2">
-        <InvoiceEditor data={invoiceData} onChange={setInvoiceData} />
+        <InvoiceEditor data={invoiceData} onChange={setInvoiceData} showToast={showToast} />
       </div>
       <div className="w-full lg:w-1/2 sticky top-8">
         <InvoicePreview data={invoiceData} onReset={() => {
-            fetch('http://localhost:4000/api/invoices/next-number')
+            fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/invoices/next-number`)
               .then(res => res.json())
               .then(resData => {
                   setInvoiceData(prev => ({
@@ -76,7 +81,7 @@ const EditorPage = () => {
                   }));
               })
               .catch(err => console.error('Failed to refetch next invoice number:', err));
-        }} />
+        }} showToast={showToast} />
       </div>
     </div>
   );

@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { LuFileDown } from 'react-icons/lu';
 import './InvoicePreview.css';
 
-const InvoicePreview = ({ data, onReset }) => {
-    const isReadyToExport = data?.client?.id && data?.items?.some(item => item.serviceId);
+const InvoicePreview = ({ data, onReset, showToast }) => {
+    const hasQuantityError = data?.items?.some(item => item.quantity > 1000);
+    const isReadyToExport = data?.client?.id && data?.items?.some(item => item.serviceId) && !hasQuantityError;
     const [isExporting, setIsExporting] = React.useState(false);
     
     const downloadPDF = async (e) => {
@@ -47,7 +48,7 @@ const InvoicePreview = ({ data, onReset }) => {
                 
                 // Save the invoice to the backend ONLY if it's a new invoice
                 if (!data.isExisting) {
-                    fetch('http://localhost:4000/api/invoices', {
+                    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/invoices`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ const InvoicePreview = ({ data, onReset }) => {
                         if (onReset) onReset();
                     }).catch(err => {
                         console.error('Error saving invoice:', err);
-                        alert(`Failed to save invoice to database: ${err.message}`);
+                        if (showToast) showToast(`Error: ${err.message}`);
                     })
                     .finally(() => setIsExporting(false));
                 } else {
@@ -87,11 +88,17 @@ const InvoicePreview = ({ data, onReset }) => {
                         className={`gap-2 px-4 font-bold ${
                             isReadyToExport && !isExporting ? 'hover:bg-slate-100 text-slate-700 border-slate-200' : 'text-slate-400 border-slate-100 bg-slate-50 cursor-not-allowed'
                         }`}
-                        title={!isReadyToExport ? "Select a client and at least one item to export" : "Export to PDF"}
+                        title={hasQuantityError ? "Quantity exceeds limit of 1000" : !isReadyToExport ? "Select a client and at least one item to export" : "Export to PDF"}
                     >
-                        <LuFileDown size="18px" /> {isExporting ? 'Exporting...' : 'Export PDF'}
+                        <LuFileDown size="18px" /> {isExporting ? 'Exporting...' : hasQuantityError ? 'Quantity too high' : 'Export PDF'}
                     </Button>
                 </div>
+                {hasQuantityError && (
+                    <div style={{ marginTop: 8, padding: '8px 12px', background: '#fff1f2', border: '1px solid #fecaca', borderRadius: 8, color: '#e11d48', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <LuCircleAlert size={14} />
+                        <span>Quantity exceeds limit of 1000 units.</span>
+                    </div>
+                )}
             </div>
             <Invoice data={data} />
         </div>

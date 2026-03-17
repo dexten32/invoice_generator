@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  backend:
+    image: bloobhehe/invoice-backend:latest
+    build:
+      context: .
+
+  frontend:
+    image: bloobhehe/invoice-frontend:latest
+    build:
+      context: .

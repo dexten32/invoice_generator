@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
     const service = await prisma.service.create({
       data: {
         name,
-        defaultPrice: parsedPrice,
+        defaultPrice: Math.round(parsedPrice * 100) / 100,
         description: description || '',
         category: category || 'Service',
         gstRate: 18, // Default GST rate for new services

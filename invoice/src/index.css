@@ -518,6 +518,42 @@
   @apply inline-block w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin;
 }
 
+/* --- Toast Notifications (Global) --- */
+.ie-toast-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.ie-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0f172a;
+  color: white;
+  padding: 14px 22px;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+  font-size: 14px;
+  font-weight: 600;
+  animation: ie-toast-in-out 3.1s forwards;
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ie-toast span {
+  white-space: nowrap;
+}
+
+@keyframes ie-toast-in-out {
+  0% { transform: translateY(30px) scale(0.95); opacity: 0; }
+  8% { transform: translateY(0) scale(1); opacity: 1; }
+  92% { transform: translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateY(10px) scale(0.95); opacity: 0; }
+}
+
 /* --- Demo Hint --- */
 .login-demo-hint {
   @apply mt-8 flex flex-col items-center gap-2;

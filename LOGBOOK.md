@@ -189,3 +189,19 @@ This logbook documents the chronological history of changes, features added, and
 - **Localization**: Switched the currency symbol from `$` to `₹` and updated the `DollarSign` icon to `IndianRupee` in the product catalog form.
 - **Feature**: Implemented descending numeric sort for the Invoice Archive list, ensuring the latest invoices appear at the top by default.
 - **Cleanup**: Removed the "Sign Up" link from the `LoginPage.jsx` to streamline the authentication flow.
+
+### 🕑 13:45 - Truly Global Notifications & Price Validation
+- **Added**: `src/context/ToastContext.jsx` implementing a centralized `ToastProvider`.
+- **Refactor**: Replaced local toast logic in `EditorPage.jsx` and `ProductsPage.jsx` with the global `useToast()` hook.
+- **Improved**: Added numeric overflow protection to the Product Catalog with a 1 Trillion limit and inline "Price limit" warning.
+- **Improved**: Added React Portals to ensure notifications always render on the top layer of the DOM.
+
+### 🕑 14:00 - Docker & Database Sync Fixes
+- **Improved**: Updated `docker-compose.yml` with host-to-container volume mappings for `./backend` and `./invoice`. This enables real-time synchronization of `schema.prisma` and source code without image rebuilds.
+- **Bug Fix**: Resolved an "Already in sync" migration error caused by container isolation.
+- **Infrastructure**: Added `docker-compose.prod.yml` template for potential remote deployment.
+
+### 🕑 15:10 - Dynamic API Configuration
+- **Refactor**: Systematically eliminated all hardcoded `localhost:4000` strings from the frontend.
+- **Added**: `VITE_API_URL` environment variable support across all core components (`AuthContext`, `useApiData`, `EditorPage`, `ProductsPage`, `CustomersPage`).
+- **Improved**: The application is now fully deployment-agnostic; API end-points can be toggled via `.env` without code changes.

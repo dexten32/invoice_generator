@@ -322,11 +322,20 @@
   border: 2px solid #e2e8f0;
   border-top: 2px solid #94a3b8;
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  animation: ie-spin 0.7s linear infinite;
 }
 
-@keyframes spin {
+@keyframes ie-spin {
   100% {
     transform: rotate(360deg);
   }
+}
+
+.ie-error-msg {
+  color: #ef4444;
+  font-size: 10px;
+  font-weight: 700;
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }

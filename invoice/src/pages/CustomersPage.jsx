@@ -54,7 +54,7 @@ const CustomersPage = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch('http://localhost:4000/api/customers', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/customers`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ const CustomersPage = () => {
     if (!window.confirm('Are you sure you want to delete this client?')) return;
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch(`http://localhost:4000/api/customers/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/customers/${id}`, {
         method: 'DELETE',
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       });

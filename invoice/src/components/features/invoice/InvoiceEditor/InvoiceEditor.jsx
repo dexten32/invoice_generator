@@ -70,11 +70,12 @@ const Field = ({ label, required, children, flex }) => (
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-const InvoiceEditor = ({ data, onChange }) => {
+const InvoiceEditor = ({ data, onChange, showToast }) => {
   if (!data) return null;
 
   const [isSavingBusiness, setIsSavingBusiness] = React.useState(false);
   const [isEditingBusiness, setIsEditingBusiness] = React.useState(false);
+  const [itemErrors, setItemErrors] = React.useState({});
 
   const { data: customersData, isLoading: customersLoading, error: customersError } = useApiData('/customers');
   const { data: servicesData, isLoading: servicesLoading, error: servicesError } = useApiData('/services');
@@ -117,7 +118,7 @@ const InvoiceEditor = ({ data, onChange }) => {
     setIsSavingBusiness(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch('http://localhost:4000/api/companies', {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/companies`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(data.business),
@@ -443,11 +444,22 @@ const InvoiceEditor = ({ data, onChange }) => {
                     <input className="ie-input" style={{ textAlign: 'right', background: '#f8fafc', color: '#64748b', cursor: 'default' }} type="number" value={item.rate}
                       readOnly />
                   </Field>
-                  <Field label="Qty">
+                   <Field label="Qty">
                     <input className="ie-input" style={{ textAlign: 'center', background: data.isExisting ? '#f8fafc' : 'white', color: data.isExisting ? '#64748b' : '#0f172a' }} 
                       type="number" value={item.quantity}
                       readOnly={data.isExisting}
-                      onChange={e => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} />
+                      min="1"
+                      max="1000"
+                      onChange={e => {
+                        const val = parseFloat(e.target.value) || 0;
+                        if (val > 1000) {
+                          showToast("Value entered is too large and can't be proceeds with it");
+                        }
+                        handleItemChange(item.id, 'quantity', val);
+                      }} />
+                    {item.quantity > 1000 && (
+                      <div className="ie-error-msg">Limit Exceeded: 1000 Max</div>
+                    )}
                   </Field>
                   <Field label="Amount">
                     <div className="ie-amount-box">
@@ -475,13 +487,29 @@ const InvoiceEditor = ({ data, onChange }) => {
               <input className="ie-input" type="number" value={data.taxRate} placeholder="18"
                 readOnly={data.isExisting}
                 style={data.isExisting ? { background: '#f8fafc', color: '#64748b', cursor: 'default' } : {}}
-                onChange={e => onChange(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))} />
+                onChange={e => {
+                  const val = parseFloat(e.target.value) || 0;
+                  if (val > 100) {
+                    showToast("Value entered is too large and can't be proceeds with it");
+                    onChange(prev => ({ ...prev, taxRate: 18 }));
+                  } else {
+                    onChange(prev => ({ ...prev, taxRate: val }));
+                  }
+                }} />
             </Field>
             <Field label="Discount (₹)">
               <input className="ie-input" type="number" value={data.discount} placeholder="0"
                 readOnly={data.isExisting}
                 style={data.isExisting ? { background: '#f8fafc', color: '#64748b', cursor: 'default' } : {}}
-                onChange={e => onChange(prev => ({ ...prev, discount: parseFloat(e.target.value) || 0 }))} />
+                onChange={e => {
+                  const val = parseFloat(e.target.value) || 0;
+                  if (val > 10000000) { // Limit discount to 10M for safety
+                    showToast("Value entered is too large and can't be proceeds with it");
+                    onChange(prev => ({ ...prev, discount: 0 }));
+                  } else {
+                    onChange(prev => ({ ...prev, discount: val }));
+                  }
+                }} />
             </Field>
           </div>
         </Section>

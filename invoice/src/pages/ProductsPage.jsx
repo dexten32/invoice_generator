@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 
 import { useApiData } from '../hooks/useApiData';
+import { useToast } from '../context/ToastContext';
 
 const CATEGORIES = ['Service', 'Physical Product', 'Digital Goods', 'Subscription'];
 
@@ -27,14 +28,21 @@ const ProductsPage = () => {
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
+  const { showToast } = useToast();
 
   const addProduct = async (e) => {
     e.preventDefault();
     const parsedPrice = Number(newProduct.price);
     if (!newProduct.name || isNaN(parsedPrice) || parsedPrice <= 0) return;
+
+    if (parsedPrice > 1000000000000) {
+      showToast("Price is too large for the catalog.");
+      return;
+    }
+
     setIsActionLoading(true);
     try {
-      const response = await fetch('http://localhost:4000/api/services', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/services`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +65,7 @@ const ProductsPage = () => {
   const deleteProduct = async (id) => {
     setIsActionLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/services/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/services/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -140,8 +148,12 @@ const ProductsPage = () => {
                       placeholder="0.00"
                       value={newProduct.price}
                       required
+                      max="1000000000000"
                       onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
                     />
+                    {Number(newProduct.price) > 1000000000000 && (
+                      <div className="ie-error-msg" style={{ marginTop: 4 }}>Price limit: 1T Max</div>
+                    )}
                   </div>
                 </div>
                 <div>
