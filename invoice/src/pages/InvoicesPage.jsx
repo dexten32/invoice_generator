@@ -25,10 +25,21 @@ const InvoicesPage = () => {
   };
 
   const invoices = apiData?.invoices ?? [];
+  const totalRevenue = invoices.reduce((sum, inv) => sum + Number(inv.totalAmount), 0);
+  const totalInvoices = invoices.length;
+
   const filteredInvoices = invoices.filter(inv =>
     inv.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     inv.customer?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
 
   return (
     <div className="ip-page">
@@ -43,6 +54,28 @@ const InvoicesPage = () => {
           <p className="ip-subtitle">
             Review and manage previously generated invoices.
           </p>
+        </div>
+      </div>
+
+      {/* Stats Dashboard */}
+      <div className="ip-stats-dashboard">
+        <div className="ip-stat-card primary">
+          <div className="ip-stat-icon">
+            <ArrowUpRight size={20} />
+          </div>
+          <div className="ip-stat-info">
+            <span className="ip-stat-label">Total Revenue</span>
+            <h2 className="ip-stat-value">{formatCurrency(totalRevenue)}</h2>
+          </div>
+        </div>
+        <div className="ip-stat-card">
+          <div className="ip-stat-icon grey">
+            <FileText size={20} />
+          </div>
+          <div className="ip-stat-info">
+            <span className="ip-stat-label">Total Invoices</span>
+            <h2 className="ip-stat-value">{totalInvoices}</h2>
+          </div>
         </div>
       </div>
 
@@ -83,6 +116,7 @@ const InvoicesPage = () => {
                 <th className="ip-th">Customer</th>
                 <th className="ip-th">Total Amount</th>
                 <th className="ip-th">Status</th>
+                <th className="ip-th">Created By</th>
               </tr>
             </thead>
             <tbody>
@@ -124,11 +158,21 @@ const InvoicesPage = () => {
                         {formattedTotal}
                       </td>
                       <td className="ip-td">
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 8 }}>
                           <span className={cn("ip-status-badge", inv.status?.toLowerCase())}>
                             <span className="ip-status-dot" />
                             {inv.status || 'SENT'}
                           </span>
+                        </div>
+                      </td>
+                      <td className="ip-td">
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                          <div className="ip-creator-badge">
+                            <div className="ip-creator-avatar">
+                              {inv.createdBy?.name?.charAt(0) || 'U'}
+                            </div>
+                            <span>{inv.createdBy?.name || 'System'}</span>
+                          </div>
                           <ChevronRight
                             size={14}
                             color="#cbd5e1"
@@ -141,8 +185,8 @@ const InvoicesPage = () => {
                     {/* Expanded Row */}
                     {isExpanded && (
                       <tr className="ip-row expanded">
-                        <td colSpan={5} style={{ padding: '0 20px 20px 20px' }}>
-                          <div className="ip-expanded-body">
+                        <td colSpan={6} className="ip-expanded-row-cell">
+                          <div className="ip-expanded-row-content">
                             <div className="ip-detail-grid">
                               <DetailCard
                                 icon={<ListChecks size={13} color="#94a3b8" />}
@@ -163,15 +207,12 @@ const InvoicesPage = () => {
 
                             <div className="ip-expanded-actions">
                               <button 
-                                className="ip-remake-btn"
+                                className="ip-view-btn" 
                                 onClick={(e) => { e.stopPropagation(); handleRemake(inv); }}
+                                title="Remake Invoice"
                               >
                                 <RotateCcw size={13} style={{ marginRight: 6 }} />
                                 Remake Invoice
-                              </button>
-                              <button className="ip-view-btn" onClick={(e) => e.stopPropagation()}>
-                                View PDF
-                                <Download size={13} style={{ marginLeft: 6 }} />
                               </button>
                             </div>
                           </div>

@@ -157,3 +157,11 @@ This logbook documents the chronological history of changes, features added, and
 - **Backend**: Implemented `POST` and `DELETE` endpoints in `services.js` to support full CRUD for the product catalog.
 - **Verify**: Confirmed through testing that products added in the Products Page now correctly populate the Invoice Editor dropdown.
 - **Verify**: Successfully ran global application builds to confirm production readiness and styling integrity.
+
+### 🕑 20:20 - Tailwind CSS & UI Layout Fixes
+
+- **Fixed**: Resolved a PostCSS/Tailwind v4 "unknown utility class" error in `src/index.css`. The arbitrary shadow utility `shadow-[20px_0_50px_-20px_rgba(0, 0, 0, 0.5)]` was causing a truncation bug due to internal spaces. Removed spaces to fix the build.
+- **Fixed**: Addressed a word-wrap issue in the "Created By" column on the `InvoicesPage`. 
+- **Added**: Missing CSS for `.ip-creator-badge` and `.ip-creator-avatar` in `InvoicesPage.css`. 
+- **Improved**: Applied `white-space: nowrap` to the creator name to ensure "U System" (or similar) stays on a single line, maintaining table alignment.
+- **Verify**: Successfully ran `npm run build` in the `invoice` package to confirm CSS integrity and build status.

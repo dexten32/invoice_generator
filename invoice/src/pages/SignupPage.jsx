@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { LayoutDashboard, Mail, Lock, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
+import { LayoutDashboard, Mail, Lock, User, Eye, EyeOff, ArrowRight, AlertCircle } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
-function LoginPage() {
-  const { login, googleLogin } = useAuth();
+function SignupPage() {
+  const { signup, googleLogin } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const from = location.state?.from?.pathname || '/';
 
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [nameFocused, setNameFocused] = useState(false);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passwordFocused, setPasswordFocused] = useState(false);
 
@@ -23,10 +23,12 @@ function LoginPage() {
     setError('');
     setIsLoading(true);
 
-    const result = await login(email, password);
+    const result = await signup(name, email, password);
 
     if (result.success) {
-      navigate(from, { replace: true });
+      // After signup, we might want to automatically log them in or redirect to login
+      // For now, let's redirect to login with a success state
+      navigate('/login', { state: { message: 'Account created successfully! Please sign in.' } });
     } else {
       setError(result.message);
       setIsLoading(false);
@@ -38,7 +40,7 @@ function LoginPage() {
     setError('');
     const result = await googleLogin(credentialResponse.credential);
     if (result.success) {
-      navigate(from, { replace: true });
+      navigate('/');
     } else {
       setError(result.message);
       setIsLoading(false);
@@ -46,20 +48,18 @@ function LoginPage() {
   };
 
   const handleGoogleError = () => {
-    setError('Google login failed. Please try again.');
+    setError('Google signup failed. Please try again.');
   };
 
   return (
     <div className="login-page">
-      {/* Left Panel — Brand */}
+      {/* Left Panel — Brand (Reusing Login Styles) */}
       <div className="login-left-panel">
-        {/* Decorative blobs */}
         <div className="login-blob login-blob-1" />
         <div className="login-blob login-blob-2" />
         <div className="login-blob login-blob-3" />
 
         <div className="login-left-content">
-          {/* Brand */}
           <div className="login-brand">
             <div className="login-brand-icon">
               <LayoutDashboard className="w-7 h-7 text-white" />
@@ -72,30 +72,27 @@ function LoginPage() {
             </div>
           </div>
 
-          {/* Headline */}
           <div className="login-headline">
             <h2 className="login-headline-title">
-              Create beautiful<br />
-              invoices in minutes.
+              Join the future of<br />
+              smart invoicing.
             </h2>
             <p className="login-headline-sub">
-              Your professional invoicing workspace. Manage customers, products, and documents — all in one place.
+              Create your account in seconds and start managing your business like a pro.
             </p>
           </div>
 
-          {/* Feature Pills */}
           <div className="login-features">
-            {['PDF Export', 'Client Management', 'Product Catalog', 'Live Preview'].map((f) => (
+            {['Free Account', 'Instant Access', 'Cloud Sync', 'Secure'].map((f) => (
               <span key={f} className="login-feature-pill">{f}</span>
             ))}
           </div>
         </div>
 
-        {/* Bottom Quote */}
         <div className="login-left-footer">
           <div className="login-quote">
-            <p className="login-quote-text">"The slickest invoicing tool I've used. My clients are impressed every time."</p>
-            <p className="login-quote-author">— A happy user</p>
+            <p className="login-quote-text">"Setting up was incredibly easy. I was sending my first invoice in less than 2 minutes."</p>
+            <p className="login-quote-author">— New User</p>
           </div>
         </div>
       </div>
@@ -104,8 +101,8 @@ function LoginPage() {
       <div className="login-right-panel">
         <div className="login-form-container">
           <div className="login-form-header">
-            <h2 className="login-form-title">Welcome back</h2>
-            <p className="login-form-sub">Sign in to your workspace</p>
+            <h2 className="login-form-title">Create Account</h2>
+            <p className="login-form-sub">Start your 14-day free trial</p>
           </div>
 
           {/* Error Alert */}
@@ -117,6 +114,26 @@ function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="login-form" noValidate>
+            {/* Name Field */}
+            <div className="login-field">
+              <label className={`login-label ${name || nameFocused ? 'login-label-active' : ''}`}>
+                Full Name
+              </label>
+              <div className="login-input-wrap">
+                <User className={`login-input-icon ${nameFocused ? 'login-input-icon-active' : ''}`} />
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onFocus={() => setNameFocused(true)}
+                  onBlur={() => setNameFocused(false)}
+                  placeholder="John Doe"
+                  className="login-input"
+                  required
+                />
+              </div>
+            </div>
+
             {/* Email Field */}
             <div className="login-field">
               <label className={`login-label ${email || emailFocused ? 'login-label-active' : ''}`}>
@@ -125,7 +142,6 @@ function LoginPage() {
               <div className="login-input-wrap">
                 <Mail className={`login-input-icon ${emailFocused ? 'login-input-icon-active' : ''}`} />
                 <input
-                  id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -147,7 +163,6 @@ function LoginPage() {
               <div className="login-input-wrap">
                 <Lock className={`login-input-icon ${passwordFocused ? 'login-input-icon-active' : ''}`} />
                 <input
-                  id="login-password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -155,7 +170,7 @@ function LoginPage() {
                   onBlur={() => setPasswordFocused(false)}
                   placeholder="••••••••"
                   className="login-input login-input-pw"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   required
                 />
                 <button
@@ -163,7 +178,6 @@ function LoginPage() {
                   className="login-pw-toggle"
                   onClick={() => setShowPassword((v) => !v)}
                   tabIndex={-1}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -172,7 +186,6 @@ function LoginPage() {
 
             {/* Submit */}
             <button
-              id="login-submit"
               type="submit"
               disabled={isLoading}
               className="login-btn"
@@ -180,11 +193,11 @@ function LoginPage() {
               {isLoading ? (
                 <>
                   <span className="login-spinner" />
-                  <span>Signing in…</span>
+                  <span>Creating account…</span>
                 </>
               ) : (
                 <>
-                  <span>Sign In</span>
+                  <span>Create Account</span>
                   <ArrowRight className="w-5 h-5 login-btn-arrow" />
                 </>
               )}
@@ -207,7 +220,7 @@ function LoginPage() {
           </div>
 
           <p className="login-signup-link">
-            Don't have an account? <Link to="/signup">Sign Up</Link>
+            Already have an account? <Link to="/login">Sign In</Link>
           </p>
         </div>
       </div>
@@ -215,4 +228,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default SignupPage;

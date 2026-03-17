@@ -26,6 +26,9 @@ export function AuthProvider({ children }) {
           const data = await res.json();
           setUser(data.user);
           setToken(storedToken);
+          if (data.tempPassword) {
+            setTempPassword(data.tempPassword);
+          }
         } else {
           // Token invalid or expired
           localStorage.removeItem('auth_token');
@@ -94,8 +97,92 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
+  /**
+   * Signup: calls /signup, sets user.
+   * Returns { success, message }
+   */
+  const signup = useCallback(async (name, email, password) => {
+    try {
+      const res = await fetch(`${API_BASE}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        return { success: true };
+      } else {
+        return { success: false, message: data.message || 'Signup failed.' };
+      }
+    } catch (err) {
+      console.error('[Auth] Signup error:', err);
+      return { success: false, message: 'Cannot connect to server.' };
+    }
+  }, []);
+
+  const [tempPassword, setTempPassword] = useState(null);
+
+  /**
+   * Google Login: calls /google with idToken, stores token, sets user.
+   * Returns { success, message }
+   */
+  const googleLogin = useCallback(async (idToken) => {
+    try {
+      const res = await fetch(`${API_BASE}/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem('auth_token', data.token);
+        setToken(data.token);
+        setUser(data.user);
+        if (data.tempPassword) {
+          setTempPassword(data.tempPassword);
+        }
+        return { success: true };
+      } else {
+        return { success: false, message: data.message || 'Google login failed.' };
+      }
+    } catch (err) {
+      console.error('[Auth] Google login error:', err);
+      return { success: false, message: 'Cannot connect to server.' };
+    }
+  }, []);
+
+  /**
+   * Setup Password: calls /setup-password, updates user.
+   */
+  const setupPassword = useCallback(async (newPassword) => {
+    try {
+      const res = await fetch(`${API_BASE}/setup-password`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ newPassword }),
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        setUser(data.user);
+        setTempPassword(null);
+        return { success: true };
+      } else {
+        return { success: false, message: data.message || 'Failed to set password.' };
+      }
+    } catch (err) {
+      console.error('[Auth] Setup password error:', err);
+      return { success: false, message: 'Cannot connect to server.' };
+    }
+  }, [token]);
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, tempPassword, login, signup, googleLogin, setupPassword, logout }}>
       {children}
     </AuthContext.Provider>
   );

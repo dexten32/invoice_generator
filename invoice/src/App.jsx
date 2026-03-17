@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
 import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import EditorPage from './pages/EditorPage';
 import CustomersPage from './pages/CustomersPage';
 import ProductsPage from './pages/ProductsPage';
@@ -16,6 +17,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
           {/* Protected Routes */}
           <Route

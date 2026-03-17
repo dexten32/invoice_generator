@@ -74,6 +74,25 @@ model Service {
 }
 
 // ─────────────────────────────────────────────
+// Users — platform members
+// ─────────────────────────────────────────────
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  googleId  String?  @unique @map("google_id")
+  name      String
+  role      String   @default("user")
+  avatar    String?
+  invoices  Invoice[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// ─────────────────────────────────────────────
 // Invoice status enum
 // ─────────────────────────────────────────────
 enum InvoiceStatus {
@@ -92,15 +111,17 @@ model Invoice {
   invoiceNumber String        @unique @map("invoice_number")
   companyId     String        @map("company_id")
   customerId    String        @map("customer_id")
+  createdById   String?       @map("created_by_id") // Nullable for existing records
   issueDate     DateTime      @map("issue_date")
   subtotal      Decimal       @db.Decimal(12, 2)
   taxAmount     Decimal       @map("tax_amount") @db.Decimal(12, 2)
   totalAmount   Decimal       @map("total_amount") @db.Decimal(12, 2)
   status        InvoiceStatus @default(DRAFT)
 
-  company  Company       @relation(fields: [companyId], references: [id])
-  customer Customer      @relation(fields: [customerId], references: [id])
-  items    InvoiceItem[]
+  company   Company       @relation(fields: [companyId], references: [id])
+  customer  Customer      @relation(fields: [customerId], references: [id])
+  createdBy User?         @relation(fields: [createdById], references: [id])
+  items     InvoiceItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

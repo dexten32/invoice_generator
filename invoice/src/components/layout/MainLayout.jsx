@@ -1,12 +1,21 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import SetupPasswordModal from '../auth/SetupPasswordModal';
 
 const MainLayout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);
+
   return (
     <div className="app-layout">
-      <Sidebar />
-      <main className="main-content-scroll custom-scrollbar">
+      <SetupPasswordModal />
+      <Sidebar isOpen={isSidebarOpen} onToggle={() => setIsSidebarOpen(!isSidebarOpen)} />
+      <main 
+        className="main-content-scroll custom-scrollbar"
+        style={{ 
+          transition: 'all 0.25s ease',
+        }}
+      >
         <div className="content-inner">
           <Outlet />
         </div>

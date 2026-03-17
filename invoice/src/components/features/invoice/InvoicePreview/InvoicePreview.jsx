@@ -45,26 +45,31 @@ const InvoicePreview = ({ data, onReset }) => {
                 
                 pdf.save(fileName);
                 
-                // Save the invoice to the backend to increment the numbering automatically
-                fetch('http://localhost:4000/api/invoices', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
-                    },
-                    body: JSON.stringify(data)
-                }).then(async (res) => {
-                    if (!res.ok) {
-                        const errorData = await res.json();
-                        throw new Error(errorData.message || 'Failed to save invoice');
-                    }
-                    // Trigger the reset callback to clear details for a new invoice
-                    if (onReset) onReset();
-                }).catch(err => {
-                    console.error('Error saving invoice:', err);
-                    alert(`Failed to save invoice to database: ${err.message}`);
-                })
-                .finally(() => setIsExporting(false));
+                // Save the invoice to the backend ONLY if it's a new invoice
+                if (!data.isExisting) {
+                    fetch('http://localhost:4000/api/invoices', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${localStorage.getItem('auth_token') || ''}`
+                        },
+                        body: JSON.stringify(data)
+                    }).then(async (res) => {
+                        if (!res.ok) {
+                            const errorData = await res.json();
+                            throw new Error(errorData.message || 'Failed to save invoice');
+                        }
+                        // Trigger the reset callback for NEW invoices only
+                        if (onReset) onReset();
+                    }).catch(err => {
+                        console.error('Error saving invoice:', err);
+                        alert(`Failed to save invoice to database: ${err.message}`);
+                    })
+                    .finally(() => setIsExporting(false));
+                } else {
+                    // For existing invoices, just finish the exporting state without saving or resetting
+                    setIsExporting(false);
+                }
             });
         }, 100);
     };

@@ -16,7 +16,8 @@ const EditorPage = () => {
       
       // Map database record to frontend state structure
       const mappedData = {
-        business: invoiceData.business, // Keep current business profile
+        isExisting: true, // Flag to indicate this shouldn't be saved again and should be read-only
+        business: invoiceData.business, 
         client: {
           id: data.customer?.id || '',
           name: data.customer?.name || '',
@@ -34,13 +35,13 @@ const EditorPage = () => {
         meta: {
           invoiceNumber: data.invoiceNumber,
           date: new Date(data.issueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          dueDate: 'On Receipt' // Default or extracted if saved
+          dueDate: 'On Receipt' 
         },
         items: data.items.map(item => ({
           id: item.id || Date.now() + Math.random(),
           serviceId: item.serviceId || '',
           description: item.serviceNameSnapshot,
-          longDescription: '', // Not saved in DB currently
+          longDescription: '', 
           rate: Number(item.unitPrice),
           quantity: item.quantity,
           gstRate: Number(item.gstRate),

@@ -150,10 +150,9 @@ const Invoice = ({ data }) => {
                             </div>
                         </div>
 
-                        <div className="signature-section">
+                        {/* <div className="signature-section">
                             <div className="signature-image">
                                 <svg viewBox="0 0 200 60" className="signature-svg">
-                                    {/* Simulate a signature matching the "Harsh" one in the image */}
                                     <path d="M20,40 Q30,15 45,40 T65,35" fill="none" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
                                     <path d="M25,25 Q45,25 60,25" fill="none" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
                                     <path d="M60,40 Q70,30 80,40 T95,35" fill="none" stroke="#0f172a" strokeWidth="2.5" strokeLinecap="round" />
@@ -164,7 +163,7 @@ const Invoice = ({ data }) => {
                             <div className="signature-line" />
                             <p className="signature-label">DATE SIGNED</p>
                             <p className="signature-date">{meta.date}</p>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 

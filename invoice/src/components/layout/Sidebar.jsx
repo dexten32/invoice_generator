@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   FileText, Users, Package, LayoutDashboard,
-  Settings, LogOut, ChevronRight, Menu, X
+  Settings, LogOut, Menu, X
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import './Sidebar.css';
 import { cn } from '@/lib/utils';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onToggle }) => {
   const { user, logout } = useAuth();
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   const navItems = [
     { name: 'Invoice Editor', path: '/', icon: FileText },
@@ -30,36 +29,28 @@ const Sidebar = () => {
   }, []);
 
   const sidebarContent = (
-    <div className="sb-sidebar" style={{ width: collapsed ? 64 : 220, transition: 'width 0.25s ease' }}>
+    <div className={cn("sb-sidebar", !isOpen && "sb-collapsed")}>
 
-      {/* ── Brand ── */}
+      {/* ── Brand / Toggle ── */}
       <div className="sb-brand">
-        <div className="sb-brand-icon">
+        <button 
+          className="sb-brand-icon-toggle" 
+          onClick={onToggle}
+          title={isOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+        >
           <LayoutDashboard size={16} color="#fff" strokeWidth={2.5} />
-        </div>
-        {!collapsed && (
+        </button>
+        {isOpen && (
           <div className="sb-brand-text">
             <span className="sb-brand-name">Invo<span style={{ color: '#3b82f6' }}>Gen</span></span>
             <span className="sb-brand-sub">Workspace Pro</span>
           </div>
         )}
-        <button
-          className="sb-collapse-btn"
-          style={{ marginLeft: 'auto' }}
-          onClick={() => setCollapsed(c => !c)}
-          title={collapsed ? 'Expand' : 'Collapse'}
-        >
-          <ChevronRight
-            size={13}
-            color="#64748b"
-            style={{ transform: collapsed ? 'rotate(0deg)' : 'rotate(180deg)', transition: 'transform 0.25s ease' }}
-          />
-        </button>
       </div>
 
       {/* ── Nav ── */}
       <nav className="sb-nav">
-        {!collapsed && <p className="sb-nav-label">General</p>}
+        {isOpen && <p className="sb-nav-label">General</p>}
         {navItems.map(item => (
           <NavLink
             key={item.path}
@@ -67,8 +58,8 @@ const Sidebar = () => {
             end={item.path === '/'}
             className={({ isActive }) => cn("sb-nav-item", isActive && "sb-nav-item-active")}
             style={{
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              padding: collapsed ? '10px 0' : '9px 12px',
+              justifyContent: !isOpen ? 'center' : 'flex-start',
+              padding: !isOpen ? '10px 0' : '9px 12px',
             }}
             onClick={() => setMobileOpen(false)}
           >
@@ -80,7 +71,7 @@ const Sidebar = () => {
                   color={isActive ? '#3b82f6' : '#64748b'}
                   style={{ flexShrink: 0, transition: 'color 0.15s' }}
                 />
-                {!collapsed && (
+                {isOpen && (
                   <span className="sb-nav-link-text" style={{
                     color: isActive ? '#0f172a' : '#475569',
                     fontWeight: isActive ? 700 : 500,
@@ -88,7 +79,7 @@ const Sidebar = () => {
                     {item.name}
                   </span>
                 )}
-                {!collapsed && isActive && (
+                {isOpen && isActive && (
                   <div className="sb-active-dot" />
                 )}
               </>
@@ -102,14 +93,14 @@ const Sidebar = () => {
         <div className="sb-divider" />
 
         <div className="sb-user-row" style={{
-          justifyContent: collapsed ? 'center' : 'flex-start',
-          padding: collapsed ? '10px 0' : '10px 12px',
+          justifyContent: !isOpen ? 'center' : 'flex-start',
+          padding: !isOpen ? '10px 0' : '10px 12px',
         }}>
           <div className="sb-avatar-wrap">
             <div className="sb-avatar">{initials}</div>
             <div className="sb-online-dot" />
           </div>
-          {!collapsed && (
+          {isOpen && (
             <div className="sb-user-info">
               <p className="sb-user-name">{displayName}</p>
               <p className="sb-user-email">{user?.email || ''}</p>
@@ -119,23 +110,23 @@ const Sidebar = () => {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <button className="sb-footer-btn" style={{
-            justifyContent: collapsed ? 'center' : 'flex-start',
-            padding: collapsed ? '9px 0' : '9px 12px',
+            justifyContent: !isOpen ? 'center' : 'flex-start',
+            padding: !isOpen ? '9px 0' : '9px 12px',
           }}>
             <Settings size={14} color="#64748b" strokeWidth={2} />
-            {!collapsed && <span className="sb-footer-btn-text">Settings</span>}
+            {isOpen && <span className="sb-footer-btn-text">Settings</span>}
           </button>
 
           <button
             className="sb-footer-btn"
             style={{
-              justifyContent: collapsed ? 'center' : 'flex-start',
-              padding: collapsed ? '9px 0' : '9px 12px',
+              justifyContent: !isOpen ? 'center' : 'flex-start',
+              padding: !isOpen ? '9px 0' : '9px 12px',
             }}
             onClick={logout}
           >
             <LogOut size={14} color="#94a3b8" strokeWidth={2} />
-            {!collapsed && <span className="sb-footer-btn-text" style={{ color: '#94a3b8' }}>Sign Out</span>}
+            {isOpen && <span className="sb-footer-btn-text" style={{ color: '#94a3b8' }}>Sign Out</span>}
           </button>
         </div>
       </div>

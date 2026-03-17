@@ -227,9 +227,11 @@ const InvoiceEditor = ({ data, onChange }) => {
 
           <div style={{ display: 'flex', gap: 10 }}>
             {!isEditingBusiness ? (
-              <button className="ie-btn-outline" onClick={() => setIsEditingBusiness(true)}>
-                Edit Business Profile
-              </button>
+              !data.isExisting && (
+                <button className="ie-btn-outline" onClick={() => setIsEditingBusiness(true)}>
+                  Edit Business Profile
+                </button>
+              )
             ) : (
               <>
                 <button
@@ -342,6 +344,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                 id="customer-select"
                 value={data.client?.id ?? ''}
                 onChange={handleCustomerSelect}
+                disabled={customersLoading || data.isExisting}
                 placeholder={customers.length === 0 ? '— No customers in database —' : '— Choose a customer —'}
               >
                 {customers.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
@@ -378,10 +381,14 @@ const InvoiceEditor = ({ data, onChange }) => {
             </Field>
             <Field label="Date">
               <input className="ie-input" value={data.meta.date}
+                readOnly={data.isExisting}
+                style={data.isExisting ? { background: '#f8fafc', color: '#64748b', cursor: 'default' } : {}}
                 onChange={e => handleChange('meta', 'date', e.target.value)} />
             </Field>
             <Field label="Due Statement">
               <input className="ie-input" value={data.meta.dueDate} placeholder="On Receipt"
+                readOnly={data.isExisting}
+                style={data.isExisting ? { background: '#f8fafc', color: '#64748b', cursor: 'default' } : {}}
                 onChange={e => handleChange('meta', 'dueDate', e.target.value)} />
             </Field>
           </div>
@@ -397,9 +404,11 @@ const InvoiceEditor = ({ data, onChange }) => {
               <div key={item.id} className="ie-item-card">
                 <div className="ie-item-card-header">
                   <span className="ie-item-badge">ITEM #{index + 1}</span>
-                  <button className="ie-item-delete-btn" onClick={() => removeItem(item.id)}>
-                    <LuTrash2 size={13} />
-                  </button>
+                  {!data.isExisting && (
+                    <button className="ie-item-delete-btn" onClick={() => removeItem(item.id)}>
+                      <LuTrash2 size={13} />
+                    </button>
+                  )}
                 </div>
 
                 <Field label="Service / Product">
@@ -407,7 +416,7 @@ const InvoiceEditor = ({ data, onChange }) => {
                     id={`service-${item.id}`}
                     value={item.serviceId ?? ''}
                     onChange={e => handleServiceSelect(item.id, e.target.value)}
-                    disabled={servicesLoading}
+                    disabled={servicesLoading || data.isExisting}
                     placeholder={servicesLoading ? 'Loading…' : services.length === 0 ? '— No services —' : '— Choose a service —'}
                   >
                     {services.map(sv => (
@@ -421,8 +430,9 @@ const InvoiceEditor = ({ data, onChange }) => {
                 <Field label="Additional Notes">
                   <textarea
                     className="ie-input"
-                    style={{ resize: 'vertical', minHeight: 60, lineHeight: 1.5 }}
+                    style={{ resize: 'vertical', minHeight: 60, lineHeight: 1.5, background: data.isExisting ? '#f8fafc' : 'white', color: data.isExisting ? '#64748b' : '#0f172a' }}
                     value={item.longDescription}
+                    readOnly={data.isExisting}
                     placeholder="Optional notes or details…"
                     onChange={e => handleItemChange(item.id, 'longDescription', e.target.value)}
                   />
@@ -434,7 +444,9 @@ const InvoiceEditor = ({ data, onChange }) => {
                       readOnly />
                   </Field>
                   <Field label="Qty">
-                    <input className="ie-input" style={{ textAlign: 'center' }} type="number" value={item.quantity}
+                    <input className="ie-input" style={{ textAlign: 'center', background: data.isExisting ? '#f8fafc' : 'white', color: data.isExisting ? '#64748b' : '#0f172a' }} 
+                      type="number" value={item.quantity}
+                      readOnly={data.isExisting}
                       onChange={e => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} />
                   </Field>
                   <Field label="Amount">
@@ -450,19 +462,25 @@ const InvoiceEditor = ({ data, onChange }) => {
             ))}
           </div>
 
-          <button className="ie-add-item-btn" onClick={addItem}>
-            <LuPlus size={14} style={{ marginRight: 6 }} /> Add Line Item
-          </button>
+          {!data.isExisting && (
+            <button className="ie-add-item-btn" onClick={addItem}>
+              <LuPlus size={14} style={{ marginRight: 6 }} /> Add Line Item
+            </button>
+          )}
 
           <div className="ie-divider" />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             <Field label="GST (%)">
               <input className="ie-input" type="number" value={data.taxRate} placeholder="18"
+                readOnly={data.isExisting}
+                style={data.isExisting ? { background: '#f8fafc', color: '#64748b', cursor: 'default' } : {}}
                 onChange={e => onChange(prev => ({ ...prev, taxRate: parseFloat(e.target.value) || 0 }))} />
             </Field>
             <Field label="Discount (₹)">
               <input className="ie-input" type="number" value={data.discount} placeholder="0"
+                readOnly={data.isExisting}
+                style={data.isExisting ? { background: '#f8fafc', color: '#64748b', cursor: 'default' } : {}}
                 onChange={e => onChange(prev => ({ ...prev, discount: parseFloat(e.target.value) || 0 }))} />
             </Field>
           </div>
@@ -476,8 +494,9 @@ const InvoiceEditor = ({ data, onChange }) => {
           <div style={{ padding: '0 16px 16px' }}>
             <textarea
               className="ie-input"
-              style={{ resize: 'vertical', minHeight: 80, lineHeight: 1.6 }}
+              style={{ resize: 'vertical', minHeight: 80, lineHeight: 1.6, background: data.isExisting ? '#f8fafc' : 'white', color: data.isExisting ? '#64748b' : '#0f172a' }}
               value={data.footerNotes}
+              readOnly={data.isExisting}
               placeholder="e.g. Bank Account Details or Terms & Conditions"
               onChange={e => onChange(prev => ({ ...prev, footerNotes: e.target.value }))}
             />
