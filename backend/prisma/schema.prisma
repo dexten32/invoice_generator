@@ -2,150 +2,116 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
   provider = "postgresql"
 }
 
-// ─────────────────────────────────────────────
-// Companies — the business issuing invoices
-// ─────────────────────────────────────────────
 model Company {
-  id          String  @id @default(cuid())
-  companyName String  @map("company_name")
-  gstNumber   String? @map("gst_number")
+  id          String    @id @default(cuid())
+  companyName String    @map("company_name")
+  gstNumber   String?   @map("gst_number")
   address     String?
-  logo        String? // URL or base64 data URI
+  logo        String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
   email       String?
   website     String?
-
-  invoices Invoice[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  invoices    Invoice[]
 
   @@map("companies")
 }
 
-// ─────────────────────────────────────────────
-// Customers — clients who receive invoices
-// ─────────────────────────────────────────────
 model Customer {
-  id               String  @id @default(cuid())
+  id               String    @id @default(cuid())
   name             String
-  email            String? @unique
-  phoneCountryCode String? @map("phone_country_code")
-  phoneNumber      String? @map("phone_number")
-  gstNumber        String  @map("gst_number")
-
-  // Structured Address
-  street   String?
-  district String?
-  city     String?
-  state    String?
-  pincode  String?
-  country  String?
-
-  invoices Invoice[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  email            String?   @unique
+  gstNumber        String    @map("gst_number")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  city             String?
+  country          String?
+  district         String?
+  phoneCountryCode String?   @map("phone_country_code")
+  phoneNumber      String?   @map("phone_number")
+  pincode          String?
+  state            String?
+  street           String?
+  invoices         Invoice[]
 
   @@map("customers")
 }
 
-// ─────────────────────────────────────────────
-// Services — reusable line items / products
-// ─────────────────────────────────────────────
 model Service {
-  id           String  @id @default(cuid())
+  id           String        @id @default(cuid())
   name         String
   description  String?
-  category     String  @default("Service")
-  defaultPrice Decimal @map("default_price") @db.Decimal(30, 2)
-  gstRate      Decimal @map("gst_rate") @db.Decimal(5, 2)
-
+  defaultPrice Decimal       @map("default_price") @db.Decimal(30, 2)
+  gstRate      Decimal       @map("gst_rate") @db.Decimal(5, 2)
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  category     String        @default("Service")
+  sac          Int?          @map("sac")
   invoiceItems InvoiceItem[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("services")
 }
 
-// ─────────────────────────────────────────────
-// Users — platform members
-// ─────────────────────────────────────────────
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
+  id        String    @id @default(cuid())
+  email     String    @unique
   password  String?
-  googleId  String?  @unique @map("google_id")
   name      String
-  role      String   @default("user")
+  role      String    @default("user")
   avatar    String?
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  googleId  String?   @unique @map("google_id")
   invoices  Invoice[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
-// ─────────────────────────────────────────────
-// Invoice status enum
-// ─────────────────────────────────────────────
+model Invoice {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique @map("invoice_number")
+  companyId     String        @map("company_id")
+  customerId    String        @map("customer_id")
+  issueDate     DateTime      @map("issue_date")
+  subtotal      Decimal       @db.Decimal(20, 2)
+  taxAmount     Decimal       @map("tax_amount") @db.Decimal(20, 2)
+  totalAmount   Decimal       @map("total_amount") @db.Decimal(20, 2)
+  status        InvoiceStatus @default(DRAFT)
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  createdById   String?       @map("created_by_id")
+  items         InvoiceItem[]
+  company       Company       @relation(fields: [companyId], references: [id])
+  createdBy     User?         @relation(fields: [createdById], references: [id])
+  customer      Customer      @relation(fields: [customerId], references: [id])
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id                  String   @id @default(cuid())
+  invoiceId           String   @map("invoice_id")
+  serviceId           String?  @map("service_id")
+  serviceNameSnapshot String   @map("service_name_snapshot")
+  unitPrice           Decimal  @map("unit_price") @db.Decimal(20, 2)
+  quantity            Int      @default(1)
+  gstRate             Decimal  @map("gst_rate") @db.Decimal(5, 2)
+  lineTotal           Decimal  @map("line_total") @db.Decimal(20, 2)
+  createdAt           DateTime @default(now()) @map("created_at")
+  invoice             Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  service             Service? @relation(fields: [serviceId], references: [id])
+
+  @@map("invoice_items")
+}
+
 enum InvoiceStatus {
   DRAFT
   SENT
   PAID
   OVERDUE
   CANCELLED
-}
-
-// ─────────────────────────────────────────────
-// Invoices — header record for each invoice
-// ─────────────────────────────────────────────
-model Invoice {
-  id            String        @id @default(cuid())
-  invoiceNumber String        @unique @map("invoice_number")
-  companyId     String        @map("company_id")
-  customerId    String        @map("customer_id")
-  createdById   String?       @map("created_by_id") // Nullable for existing records
-  issueDate     DateTime      @map("issue_date")
-  subtotal      Decimal       @db.Decimal(20, 2)
-  taxAmount     Decimal       @map("tax_amount") @db.Decimal(20, 2)
-  totalAmount   Decimal       @map("total_amount") @db.Decimal(20, 2)
-  status        InvoiceStatus @default(DRAFT)
-
-  company   Company       @relation(fields: [companyId], references: [id])
-  customer  Customer      @relation(fields: [customerId], references: [id])
-  createdBy User?         @relation(fields: [createdById], references: [id])
-  items     InvoiceItem[]
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@map("invoices")
-}
-
-// ─────────────────────────────────────────────
-// Invoice Items — individual line items
-// ─────────────────────────────────────────────
-model InvoiceItem {
-  id                  String  @id @default(cuid())
-  invoiceId           String  @map("invoice_id")
-  serviceId           String? @map("service_id") // nullable: service may have been deleted
-  serviceNameSnapshot String  @map("service_name_snapshot") // immutable copy at time of invoicing
-  unitPrice           Decimal @map("unit_price") @db.Decimal(20, 2)
-  quantity            Int     @default(1)
-  gstRate             Decimal @map("gst_rate") @db.Decimal(5, 2)
-  lineTotal           Decimal @map("line_total") @db.Decimal(20, 2)
-
-  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  service Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
-
-  createdAt DateTime @default(now()) @map("created_at")
-
-  @@map("invoice_items")
 }

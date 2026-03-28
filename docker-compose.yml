@@ -24,6 +24,7 @@ services:
       - DATABASE_URL=postgresql://postgres:admin123@db:5432/invoice_generator
       - JWT_SECRET=6XFA5ldcW463VPrbUCWqSftvHUKfb1cwlTZ6ZwgybWa
       - GOOGLE_CLIENT_ID=1017820093725-te751dt0okili4em79ifi00gcbcb2c4g.apps.googleusercontent.com
+      - ALLOWED_EMAILS="harshbajaj544@gmail.com,rishu.kumar@cynoxsecurity.com"
     depends_on:
       - db
 
@@ -31,7 +32,7 @@ services:
     build:
       context: ./invoice
       args:
-        - VITE_API_URL=http://93.127.198.5:8000/api
+        - VITE_API_URL=/api
         - VITE_GOOGLE_CLIENT_ID=1017820093725-te751dt0okili4em79ifi00gcbcb2c4g.apps.googleusercontent.com
     container_name: invoice-frontend
     restart: always

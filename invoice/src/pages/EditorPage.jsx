@@ -19,7 +19,7 @@ const EditorPage = () => {
       
       // Map database record to frontend state structure
       const mappedData = {
-        isExisting: true, // Flag to indicate this shouldn't be saved again and should be read-only
+        isExisting: false, 
         business: invoiceData.business, 
         client: {
           id: data.customer?.id || '',
@@ -36,8 +36,8 @@ const EditorPage = () => {
           country: data.customer?.country || '',
         },
         meta: {
-          invoiceNumber: data.invoiceNumber,
-          date: new Date(data.issueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+          invoiceNumber: '', // Clear to allow fetching next number
+          date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
           dueDate: 'On Receipt' 
         },
         items: data.items.map(item => ({
@@ -64,13 +64,13 @@ const EditorPage = () => {
   const { showToast } = useToast();
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start relative">
-      <div className="w-full lg:w-1/2">
+    <div className="flex flex-col md:flex-row gap-8 items-start relative">
+      <div className="w-full md:w-1/2">
         <InvoiceEditor data={invoiceData} onChange={setInvoiceData} showToast={showToast} />
       </div>
-      <div className="w-full lg:w-1/2 sticky top-8">
+      <div className="w-full md:w-1/2 md:sticky md:top-8">
         <InvoicePreview data={invoiceData} onReset={() => {
-            fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/invoices/next-number`)
+            fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/invoices/next-number`)
               .then(res => res.json())
               .then(resData => {
                   setInvoiceData(prev => ({

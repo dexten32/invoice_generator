@@ -48,7 +48,7 @@ const InvoicePreview = ({ data, onReset, showToast }) => {
                 
                 // Save the invoice to the backend ONLY if it's a new invoice
                 if (!data.isExisting) {
-                    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/invoices`, {
+                    fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/invoices`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

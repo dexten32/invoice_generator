@@ -29,6 +29,7 @@ const CustomersPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState(null);
   const [expandedCustomerId, setExpandedCustomerId] = useState(null);
 
   const toggleExpand = (id) => {
@@ -45,7 +46,7 @@ const CustomersPage = () => {
     setNewCustomer({ ...newCustomer, phoneNumber: value });
   };
 
-  const addCustomer = async (e) => {
+  const handleSaveCustomer = async (e) => {
     e.preventDefault();
     if (!newCustomer.name || !newCustomer.gstNumber) {
       alert('Name and GST Number are mandatory.');
@@ -54,26 +55,35 @@ const CustomersPage = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/customers`, {
-        method: 'POST',
+      const url = editingCustomer
+        ? `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/customers/${editingCustomer.id}`
+        : `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/customers`;
+      
+      const method = editingCustomer ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(newCustomer),
       });
+
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to create customer');
+        throw new Error(errorData.message || 'Failed to save customer');
       }
+
       setNewCustomer({
         name: '', email: '', phoneCountryCode: '+91', phoneNumber: '', gstNumber: '',
         street: '', district: '', city: '', state: '', pincode: '', country: 'India'
       });
+      setEditingCustomer(null);
       setIsFormVisible(false);
       refetch();
     } catch (err) {
-      console.error('Add customer error:', err);
+      console.error('Save customer error:', err);
       alert(err.message);
     } finally {
       setIsSubmitting(false);
@@ -84,7 +94,7 @@ const CustomersPage = () => {
     if (!window.confirm('Are you sure you want to delete this client?')) return;
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/customers/${id}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/customers/${id}`, {
         method: 'DELETE',
         headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       });
@@ -121,7 +131,7 @@ const CustomersPage = () => {
             <Download size={14} strokeWidth={2} style={{ marginRight: 6 }} />
             Export
           </button>
-          <button className="cp-btn-primary" onClick={() => setIsFormVisible(true)}>
+          <button className="cp-btn-primary" onClick={() => { setEditingCustomer(null); setNewCustomer({ name: '', email: '', phoneCountryCode: '+91', phoneNumber: '', gstNumber: '', street: '', district: '', city: '', state: '', pincode: '', country: 'India' }); setIsFormVisible(true); }}>
             <Plus size={15} strokeWidth={2.5} style={{ marginRight: 6 }} />
             Add Client
           </button>
@@ -135,13 +145,13 @@ const CustomersPage = () => {
           <div className="cp-slide-panel">
             <div className="cp-panel-header">
               <div>
-                <h2 className="cp-panel-title">New Client</h2>
-                <p className="cp-panel-sub">Directory Addition</p>
+                <h2 className="cp-panel-title">{editingCustomer ? 'Edit Client' : 'New Client'}</h2>
+                <p className="cp-panel-sub">{editingCustomer ? 'Update Directory Entry' : 'Directory Addition'}</p>
               </div>
-              <button className="cp-close-btn" onClick={() => setIsFormVisible(false)}>✕</button>
+              <button className="cp-close-btn" onClick={() => { setIsFormVisible(false); setEditingCustomer(null); }}>✕</button>
             </div>
 
-            <form onSubmit={addCustomer} className="cp-form-scroll">
+            <form onSubmit={handleSaveCustomer} className="cp-form-scroll">
               <FormField label="Client Name" required icon={<User size={15} color="#94a3b8" />}>
                 <input
                   className="cp-input"
@@ -241,7 +251,7 @@ const CustomersPage = () => {
               </div>
 
               <button type="submit" className="cp-submit-btn" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Directory Entry'}
+                {isSubmitting ? 'Saving...' : editingCustomer ? 'Update Directory Entry' : 'Create Directory Entry'}
               </button>
             </form>
           </div>
@@ -271,7 +281,7 @@ const CustomersPage = () => {
             <div className="cp-empty-icon"><Users size={28} color="#cbd5e1" /></div>
             <p className="cp-empty-title">No clients found</p>
             <p className="cp-empty-sub">Add your first client to get started.</p>
-            <button className="cp-btn-primary" onClick={() => setIsFormVisible(true)}>
+            <button className="cp-btn-primary" onClick={() => { setEditingCustomer(null); setNewCustomer({ name: '', email: '', phoneCountryCode: '+91', phoneNumber: '', gstNumber: '', street: '', district: '', city: '', state: '', pincode: '', country: 'India' }); setIsFormVisible(true); }}>
               <Plus size={14} style={{ marginRight: 6 }} /> Add Client
             </button>
           </div>
@@ -279,11 +289,12 @@ const CustomersPage = () => {
           <table className="cp-table">
             <thead>
               <tr>
-                <th className="cp-th" style={{ width: '10%', textAlign: 'left' }}>ID</th>
-                <th className="cp-th" style={{ width: '30%' }}>Client Name</th>
-                <th className="cp-th" style={{ width: '28%' }}>Email</th>
-                <th className="cp-th" style={{ width: '18%' }}>Phone</th>
-                <th className="cp-th" style={{ width: '14%' }}>Status</th>
+                <th className="cp-th mob-col-id">ID</th>
+                <th className="cp-th mob-col-name">Client Name</th>
+                <th className="cp-th mobile-hide">Email</th>
+                <th className="cp-th mobile-hide">Phone</th>
+                <th className="cp-th mob-col-amount">Status</th>
+                <th className="cp-th mobile-only-cell" style={{ width: '40px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -295,10 +306,10 @@ const CustomersPage = () => {
                       className={cn("cp-row", isExpanded ? "expanded" : "collapsed")}
                       onClick={() => toggleExpand(customer.id)}
                     >
-                      <td className="cp-td" style={{ textAlign: 'left' }}>
+                      <td className="cp-td mob-col-id">
                         <span className="cp-id-badge">{customer.id.slice(-6).toUpperCase()}</span>
                       </td>
-                      <td className="cp-td">
+                      <td className="cp-td mob-col-name">
                         <div className="cp-name-cell">
                           <div className="cp-avatar">
                             {customer.name.charAt(0).toUpperCase()}
@@ -306,35 +317,37 @@ const CustomersPage = () => {
                           <span className="cp-client-name">{customer.name}</span>
                         </div>
                       </td>
-                      <td className="cp-td">
+                      <td className="cp-td mobile-hide">
                         <span className="cp-cell-muted">{customer.email || '—'}</span>
                       </td>
-                      <td className="cp-td">
+                      <td className="cp-td mobile-hide">
                         <span className="cp-cell-muted">
                           {customer.phoneNumber
                             ? `${customer.phoneCountryCode} ${customer.phoneNumber}`
                             : '—'}
                         </span>
                       </td>
-                      <td className="cp-td">
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <td className="cp-td mob-col-amount">
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
                           <span className="cp-status-badge">
                             <span className="cp-status-dot" />
                             Active
                           </span>
-                          <ChevronRight
+                        </div>
+                      </td>
+                      <td className="cp-td mobile-only-cell">
+                         <ChevronRight
                             size={14}
                             color="#cbd5e1"
                             style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
                           />
-                        </div>
                       </td>
                     </tr>
 
                     {/* Expanded Row */}
                     {isExpanded && (
                       <tr className="cp-row expanded">
-                        <td colSpan={5} style={{ padding: '0 20px 20px 20px' }}>
+                        <td colSpan={6} style={{ padding: '0 20px 20px 20px' }}>
                           <div className="cp-expanded-body">
                             <div className="cp-detail-grid">
                               <DetailCard
@@ -363,9 +376,29 @@ const CustomersPage = () => {
                                 <Trash2 size={13} style={{ marginRight: 6 }} />
                                 Remove Client
                               </button>
-                              <button className="cp-profile-btn" onClick={(e) => e.stopPropagation()}>
-                                Open Profile
-                                <ExternalLink size={13} style={{ marginLeft: 6 }} />
+                              <button 
+                                className="cp-profile-btn" 
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  setEditingCustomer(customer);
+                                  setNewCustomer({
+                                    name: customer.name,
+                                    email: customer.email || '',
+                                    phoneCountryCode: customer.phoneCountryCode || '+91',
+                                    phoneNumber: customer.phoneNumber || '',
+                                    gstNumber: customer.gstNumber || '',
+                                    street: customer.street || '',
+                                    district: customer.district || '',
+                                    city: customer.city || '',
+                                    state: customer.state || '',
+                                    pincode: customer.pincode || '',
+                                    country: customer.country || 'India'
+                                  });
+                                  setIsFormVisible(true);
+                                }}
+                              >
+                                Edit Profile
+                                <ArrowUpRight size={13} style={{ marginLeft: 6 }} />
                               </button>
                             </div>
                           </div>
@@ -376,14 +409,16 @@ const CustomersPage = () => {
                 );
               })}
             </tbody>
+            {filteredCustomers.length > 0 && (
+              <tfoot>
+                <tr className="cp-footer-row">
+                  <td colSpan={6} className="cp-footer-td">
+                    {filteredCustomers.length} client{filteredCustomers.length !== 1 ? 's' : ''} in directory
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
-        )}
-
-        {/* Footer count */}
-        {filteredCustomers.length > 0 && (
-          <div className="cp-table-footer">
-            {filteredCustomers.length} client{filteredCustomers.length !== 1 ? 's' : ''} in directory
-          </div>
         )}
       </div>
     </div>

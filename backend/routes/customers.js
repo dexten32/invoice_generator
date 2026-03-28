@@ -93,4 +93,46 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+/**
+ * PUT /api/customers/:id
+ * Updates an existing customer by ID.
+ */
+router.put('/:id', async (req, res) => {
+  const { 
+    name, email, 
+    phoneCountryCode, phoneNumber, 
+    gstNumber,
+    street, district, city, state, pincode, country
+  } = req.body;
+
+  if (!name) return res.status(400).json({ message: 'Name is required.' });
+  if (!gstNumber) return res.status(400).json({ message: 'GST Number is required.' });
+
+  try {
+    const customer = await prisma.customer.update({
+      where: { id: req.params.id },
+      data: { 
+        name, 
+        email: email || null, 
+        phoneCountryCode, 
+        phoneNumber, 
+        gstNumber,
+        street, 
+        district, 
+        city, 
+        state, 
+        pincode, 
+        country
+      },
+    });
+    return res.status(200).json({ customer });
+  } catch (err) {
+    console.error('[Customers] PUT error:', err);
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'Customer not found.' });
+    }
+    return res.status(500).json({ message: 'Failed to update customer.', error: err.message });
+  }
+});
+
 module.exports = router;

@@ -4,9 +4,12 @@ services:
   backend:
     image: bloobhehe/invoice-backend:latest
     build:
-      context: .
+      context: ./backend
 
   frontend:
     image: bloobhehe/invoice-frontend:latest
     build:
-      context: .
+      context: ./invoice
+      args:
+        - VITE_API_URL=/api
+        - VITE_GOOGLE_CLIENT_ID=1017820093725-te751dt0okili4em79ifi00gcbcb2c4g.apps.googleusercontent.com

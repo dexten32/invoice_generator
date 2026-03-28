@@ -18,6 +18,7 @@ router.get('/', async (req, res) => {
         category: true,
         defaultPrice: true,
         gstRate: true,
+        sac: true,
       },
     });
     // Convert Decimal fields to numbers for JSON serialization
@@ -63,7 +64,7 @@ router.get('/:id', async (req, res) => {
  * Creates a new service.
  */
 router.post('/', async (req, res) => {
-  const { name, price, description, category } = req.body;
+  const { name, price, description, category, sac } = req.body;
 
   const parsedPrice = Number(price);
   if (!name || isNaN(parsedPrice) || parsedPrice <= 0) {
@@ -78,6 +79,7 @@ router.post('/', async (req, res) => {
         description: description || '',
         category: category || 'Service',
         gstRate: 18, // Default GST rate for new services
+        sac: sac ? parseInt(sac) : null,
       },
     });
     return res.status(201).json({
@@ -109,6 +111,45 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Service not found.' });
     }
     return res.status(500).json({ message: 'Failed to delete service.' });
+  }
+});
+
+/**
+ * PUT /api/services/:id
+ * Updates an existing service by ID.
+ */
+router.put('/:id', async (req, res) => {
+  const { name, price, description, category, sac } = req.body;
+
+  const parsedPrice = Number(price);
+  if (!name || isNaN(parsedPrice) || parsedPrice <= 0) {
+    return res.status(400).json({ message: 'Name and a valid positive price are required.' });
+  }
+
+  try {
+    const service = await prisma.service.update({
+      where: { id: req.params.id },
+      data: {
+        name,
+        defaultPrice: Math.round(parsedPrice * 100) / 100,
+        description: description || '',
+        category: category || 'Service',
+        sac: sac ? parseInt(sac) : null,
+      },
+    });
+    return res.status(200).json({
+      service: {
+        ...service,
+        defaultPrice: Number(service.defaultPrice),
+        gstRate: Number(service.gstRate),
+      },
+    });
+  } catch (err) {
+    console.error('[Services] PUT error:', err);
+    if (err.code === 'P2025') {
+      return res.status(404).json({ message: 'Service not found.' });
+    }
+    return res.status(500).json({ message: 'Failed to update service.' });
   }
 });
 

@@ -113,12 +113,13 @@ const InvoicesPage = () => {
           <table className="ip-table">
             <thead>
               <tr>
-                <th className="ip-th" style={{ textAlign: 'left' }}>Invoice #</th>
-                <th className="ip-th">Date</th>
-                <th className="ip-th">Customer</th>
-                <th className="ip-th">Total Amount</th>
-                <th className="ip-th">Status</th>
-                <th className="ip-th">Created By</th>
+                <th className="ip-th mob-col-id">Invoice #</th>
+                <th className="ip-th mobile-hide">Date</th>
+                <th className="ip-th mob-col-name">Customer</th>
+                <th className="ip-th mob-col-amount">Total Amount</th>
+                <th className="ip-th mobile-hide" style={{ textAlign: 'left' }}>Status</th>
+                <th className="ip-th mobile-hide" style={{ textAlign: 'left' }}>Created By</th>
+                <th className="ip-th mobile-only-cell" style={{ width: '40px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -141,25 +142,25 @@ const InvoicesPage = () => {
                       className={cn("ip-row", isExpanded ? "expanded" : "collapsed")}
                       onClick={() => toggleExpand(inv.id)}
                     >
-                      <td className="ip-td" style={{ textAlign: 'left' }}>
+                      <td className="ip-td mob-col-id">
                         <span className="ip-id-badge">{inv.invoiceNumber}</span>
                       </td>
-                      <td className="ip-td">
+                      <td className="ip-td mobile-hide">
                         <div className="ip-date-cell">
                           <Calendar size={13} color="#94a3b8" />
                           <span>{issueDate}</span>
                         </div>
                       </td>
-                      <td className="ip-td">
+                      <td className="ip-td mob-col-name">
                         <div className="ip-customer-cell">
                           <User size={13} color="#94a3b8" />
                           <span>{inv.customer?.name}</span>
                         </div>
                       </td>
-                      <td className="ip-td ip-amount-cell">
-                        {formattedTotal}
+                      <td className="ip-td mob-col-amount">
+                        <span className="ip-total-cell">{formattedTotal}</span>
                       </td>
-                      <td className="ip-td">
+                      <td className="ip-td mobile-hide">
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: 8 }}>
                           <span className={cn("ip-status-badge", inv.status?.toLowerCase())}>
                             <span className="ip-status-dot" />
@@ -167,7 +168,7 @@ const InvoicesPage = () => {
                           </span>
                         </div>
                       </td>
-                      <td className="ip-td">
+                      <td className="ip-td mobile-hide">
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                           <div className="ip-creator-badge">
                             <div className="ip-creator-avatar">
@@ -182,14 +183,32 @@ const InvoicesPage = () => {
                           />
                         </div>
                       </td>
+                      {/* Show Chevron on mobile since Created By is hidden */}
+                      <td className="ip-td mobile-only-cell">
+                         <ChevronRight
+                            size={14}
+                            color="#cbd5e1"
+                            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
+                          />
+                      </td>
                     </tr>
 
                     {/* Expanded Row */}
                     {isExpanded && (
                       <tr className="ip-row expanded">
-                        <td colSpan={6} className="ip-expanded-row-cell">
+                        <td colSpan={7} className="ip-expanded-row-cell">
                           <div className="ip-expanded-row-content">
                             <div className="ip-detail-grid">
+                              <DetailCard
+                                icon={<Calendar size={13} color="#94a3b8" />}
+                                label="Issue Date"
+                                value={issueDate}
+                              />
+                              <DetailCard
+                                icon={<Clock size={13} color="#94a3b8" />}
+                                label="Status"
+                                value={inv.status || 'SENT'}
+                              />
                               <DetailCard
                                 icon={<ListChecks size={13} color="#94a3b8" />}
                                 label="Items Summary"

@@ -118,7 +118,7 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
     setIsSavingBusiness(true);
     try {
       const token = localStorage.getItem('auth_token');
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/companies`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/companies`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         body: JSON.stringify(data.business),

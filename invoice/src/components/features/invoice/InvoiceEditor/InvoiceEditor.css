@@ -14,9 +14,15 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 20px 16px 16px;
+  padding: 16px;
   border-bottom: 1px solid #e2e8f0;
   margin-bottom: 8px;
+}
+
+@media (max-width: 640px) {
+  .ie-header {
+    padding: 12px;
+  }
 }
 
 .ie-header-icon {
@@ -95,11 +101,17 @@
 }
 
 .ie-section-body {
-  padding: 4px 14px 16px;
+  padding: 4px 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   border-top: 1px solid #f1f5f9;
+}
+
+@media (min-width: 640px) {
+  .ie-section-body {
+    padding: 4px 14px 16px;
+  }
 }
 
 /* Form elements */

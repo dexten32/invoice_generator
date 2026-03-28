@@ -13,6 +13,14 @@ const safeUser = (user) => {
   return safe;
 };
 
+// Helper to check if email is allowed
+const isEmailAllowed = (email) => {
+  const allowedEmails = process.env.ALLOWED_EMAILS;
+  if (!allowedEmails || allowedEmails === 'all') return true;
+  const list = allowedEmails.split(',').map(e => e.trim().toLowerCase());
+  return list.includes(email.toLowerCase());
+};
+
 /**
  * POST /api/auth/signup
  * Body: { email, password, name }
@@ -29,6 +37,10 @@ router.post('/signup', async (req, res) => {
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return res.status(409).json({ message: 'User already exists with this email.' });
+    }
+
+    if (!isEmailAllowed(email)) {
+      return res.status(403).json({ message: 'Registration is locked. This email is not authorized.' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -176,6 +188,9 @@ router.post('/google', async (req, res) => {
 
     let isNewUser = false;
     if (!user) {
+      if (!isEmailAllowed(email)) {
+        return res.status(403).json({ message: 'Registration is locked. This Google account is not authorized.' });
+      }
       isNewUser = true;
       user = await prisma.user.create({
         data: {

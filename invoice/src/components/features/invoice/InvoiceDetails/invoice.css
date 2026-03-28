@@ -32,13 +32,20 @@ body {
     width: 100%;
     max-width: 850px;
     background-color: white;
-    padding: 40px 48px;
+    padding: 24px 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     border: 1px solid #e5e7eb;
     color: #111827;
     font-family: 'Open Sans', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    font-size: 12px;
+    font-size: 11px;
     line-height: 1.4;
+}
+
+@media (min-width: 640px) {
+    .invoice-container {
+        padding: 40px 48px;
+        font-size: 12px;
+    }
 }
 
 .select-none {
@@ -69,6 +76,15 @@ p {
     justify-content: space-between;
     margin-bottom: 15px;
     align-items: flex-start;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (min-width: 640px) {
+    .invoice-header {
+        flex-direction: row;
+        gap: 0;
+    }
 }
 
 .header-left {
@@ -85,9 +101,15 @@ p {
 }
 
 .invoice-logo {
-    width: 90px;
+    width: 70px;
     height: auto;
     object-fit: contain;
+}
+
+@media (min-width: 640px) {
+    .invoice-logo {
+        width: 90px;
+    }
 }
 
 .business-info {
@@ -95,10 +117,16 @@ p {
 }
 
 .business-name {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     color: #111827;
     margin: 0 0 4px 0;
+}
+
+@media (min-width: 640px) {
+    .business-name {
+        font-size: 20px;
+    }
 }
 
 .business-number {
@@ -108,11 +136,22 @@ p {
 /* Right Header Meta */
 .header-right {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    text-align: right;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    text-align: left;
     gap: 15px;
     padding-top: 5px;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .header-right {
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+        width: auto;
+    }
 }
 
 .meta-group {
@@ -249,10 +288,15 @@ p {
 }
 
 .totals-wrapper {
-    width: 40%;
-    /* Width of the entire right block matching roughly RATE + QTY + AMOUNT */
+    width: 100%;
     display: flex;
     flex-direction: column;
+}
+
+@media (min-width: 640px) {
+    .totals-wrapper {
+        width: 40%;
+    }
 }
 
 .totals-table {

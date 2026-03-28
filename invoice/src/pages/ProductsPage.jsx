@@ -23,14 +23,15 @@ const ProductsPage = () => {
   const { data: servicesData, isLoading, error, refetch } = useApiData('/services');
   const products = servicesData?.services || [];
 
-  const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: 'Service' });
+  const [newProduct, setNewProduct] = useState({ name: '', price: '', description: '', category: 'Service', sac: '998311' });
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const { showToast } = useToast();
 
-  const addProduct = async (e) => {
+  const handleSaveProduct = async (e) => {
     e.preventDefault();
     const parsedPrice = Number(newProduct.price);
     if (!newProduct.name || isNaN(parsedPrice) || parsedPrice <= 0) return;
@@ -42,21 +43,34 @@ const ProductsPage = () => {
 
     setIsActionLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/services`, {
-        method: 'POST',
+      const url = editingProduct 
+        ? `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/services/${editingProduct.id}`
+        : `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/services`;
+      
+      const method = editingProduct ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         },
         body: JSON.stringify(newProduct),
       });
+
       if (response.ok) {
-        setNewProduct({ name: '', price: '', description: '', category: 'Service' });
+        showToast(editingProduct ? "Product updated successfully." : "Product added successfully.");
+        setNewProduct({ name: '', price: '', description: '', category: 'Service', sac: '998311' });
+        setEditingProduct(null);
         setIsFormVisible(false);
         refetch();
+      } else {
+        const errorData = await response.json();
+        showToast(errorData.message || "Operation failed.");
       }
     } catch (err) {
-      console.error('Add product error:', err);
+      console.error('Save product error:', err);
+      showToast("A network error occurred.");
     } finally {
       setIsActionLoading(false);
     }
@@ -65,7 +79,7 @@ const ProductsPage = () => {
   const deleteProduct = async (id) => {
     setIsActionLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/services/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/services/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -101,7 +115,7 @@ const ProductsPage = () => {
           <button className="pp-btn-outline">
             <Archive size={14} strokeWidth={2} style={{ marginRight: 6 }} /> Categories
           </button>
-          <button className="pp-btn-primary" onClick={() => setIsFormVisible(true)}>
+          <button className="pp-btn-primary" onClick={() => { setEditingProduct(null); setNewProduct({ name: '', price: '', description: '', category: 'Service', sac: '998311' }); setIsFormVisible(true); }}>
             <PlusCircle size={15} strokeWidth={2.5} style={{ marginRight: 6 }} /> Create Product
           </button>
         </div>
@@ -114,13 +128,13 @@ const ProductsPage = () => {
           <div className="pp-slide-panel">
             <div className="pp-panel-header">
               <div>
-                <h2 className="pp-panel-title">New Product</h2>
-                <p className="pp-panel-sub">Catalog Expansion</p>
+                <h2 className="pp-panel-title">{editingProduct ? 'Edit Product' : 'New Product'}</h2>
+                <p className="pp-panel-sub">{editingProduct ? 'Update catalog details' : 'Catalog Expansion'}</p>
               </div>
-              <button className="pp-close-btn" onClick={() => setIsFormVisible(false)}>✕</button>
+              <button className="pp-close-btn" onClick={() => { setIsFormVisible(false); setEditingProduct(null); }}>✕</button>
             </div>
 
-            <form onSubmit={addProduct} className="pp-form-scroll">
+            <form onSubmit={handleSaveProduct} className="pp-form-scroll">
               <div>
                 <label className="pp-label">Product Title <span style={{ color: '#ef4444' }}>*</span></label>
                 <div style={{ position: 'relative', marginTop: 5 }}>
@@ -132,6 +146,21 @@ const ProductsPage = () => {
                     value={newProduct.name}
                     required
                     onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="pp-label">SAC Code</label>
+                <div style={{ position: 'relative', marginTop: 5 }}>
+                  <Box size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                  <input
+                    className="pp-input"
+                    style={{ paddingLeft: 34 }}
+                    type="number"
+                    placeholder="e.g. 998311"
+                    value={newProduct.sac}
+                    onChange={(e) => setNewProduct({ ...newProduct, sac: e.target.value })}
                   />
                 </div>
               </div>
@@ -181,7 +210,7 @@ const ProductsPage = () => {
               </div>
 
               <button type="submit" className="pp-submit-btn" style={{ marginTop: 8, opacity: isActionLoading ? 0.7 : 1 }} disabled={isActionLoading}>
-                {isActionLoading ? 'Adding...' : 'Add to Catalog'} <ArrowUpRight size={14} style={{ marginLeft: 6 }} />
+                {isActionLoading ? 'Saving...' : editingProduct ? 'Update Product' : 'Add to Catalog'} <ArrowUpRight size={14} style={{ marginLeft: 6 }} />
               </button>
             </form>
           </div>
@@ -221,7 +250,7 @@ const ProductsPage = () => {
             <div className="pp-empty-icon"><ShoppingBag size={28} color="#cbd5e1" /></div>
             <p className="pp-empty-title">No products found</p>
             <p className="pp-empty-sub">Create your first catalog item to speed up invoice generation.</p>
-            <button className="pp-btn-primary" onClick={() => setIsFormVisible(true)}>
+            <button className="pp-btn-primary" onClick={() => { setEditingProduct(null); setNewProduct({ name: '', price: '', description: '', category: 'Service', sac: '998311' }); setIsFormVisible(true); }}>
               <Plus size={14} style={{ marginRight: 6 }} /> Create Product
             </button>
           </div>
@@ -229,11 +258,13 @@ const ProductsPage = () => {
           <table className="pp-table">
             <thead>
               <tr>
-                <th className="pp-th" style={{ width: '12%', textAlign: 'left' }}>ID</th>
-                <th className="pp-th" style={{ width: '30%' }}>Product</th>
-                <th className="pp-th" style={{ width: '18%' }}>Category</th>
-                <th className="pp-th" style={{ width: '18%' }}>Unit Price</th>
-                <th className="pp-th" style={{ width: '22%' }}>Description</th>
+                <th className="pp-th mob-col-id">ID</th>
+                <th className="pp-th mob-col-name">Product</th>
+                <th className="pp-th mobile-hide">Category</th>
+                <th className="pp-th mob-col-amount">Price</th>
+                <th className="pp-th mobile-hide">SAC</th>
+                <th className="pp-th mobile-hide">Description</th>
+                <th className="pp-th mobile-only-cell" style={{ width: '40px' }}></th>
               </tr>
             </thead>
             <tbody>
@@ -247,12 +278,12 @@ const ProductsPage = () => {
                       onClick={() => setExpandedId(prev => prev === product.id ? null : product.id)}
                     >
                       {/* ID */}
-                      <td className="pp-td" style={{ textAlign: 'left' }}>
+                      <td className="pp-td mob-col-id">
                         <span className="pp-id-badge">{String(product.id).slice(-5)}</span>
                       </td>
 
                       {/* Product Name */}
-                      <td className="pp-td">
+                      <td className="pp-td mob-col-name">
                         <div className="pp-name-cell">
                           <div className="pp-product-icon">
                             <Package size={14} color="#64748b" />
@@ -262,19 +293,24 @@ const ProductsPage = () => {
                       </td>
 
                       {/* Category */}
-                      <td className="pp-td">
+                      <td className="pp-td mobile-hide">
                         <span className="pp-cat-badge" style={{ background: cat.bg, color: cat.color, border: `1px solid ${cat.border}` }}>
                           {product.category}
                         </span>
                       </td>
 
                       {/* Price */}
-                      <td className="pp-td">
+                      <td className="pp-td mob-col-amount">
                         <span className="pp-price">₹{Number(product.defaultPrice || product.price).toLocaleString('en-IN')}</span>
                       </td>
 
+                      {/* SAC */}
+                      <td className="pp-td mobile-hide">
+                        <span className="pp-id-badge">{product.sac || '—'}</span>
+                      </td>
+
                       {/* Description preview + chevron */}
-                      <td className="pp-td">
+                      <td className="pp-td mobile-hide">
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                           <span className="pp-desc-preview">
                             {product.description ? product.description.slice(0, 48) + (product.description.length > 48 ? '…' : '') : '—'}
@@ -286,17 +322,25 @@ const ProductsPage = () => {
                           />
                         </div>
                       </td>
+                      <td className="pp-td mobile-only-cell">
+                         <ChevronRight
+                            size={14}
+                            color="#cbd5e1"
+                            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
+                          />
+                      </td>
                     </tr>
 
                     {/* Expanded Panel */}
                     {isExpanded && (
                       <tr className="pp-row expanded">
-                        <td colSpan={5} style={{ padding: '0 20px 20px' }}>
+                        <td colSpan={7} style={{ padding: '0 20px 20px' }}>
                           <div className="pp-expanded-body">
                             <div className="pp-detail-grid">
                               <DetailCard label="Full Description" value={product.description || 'No description provided.'} />
                               <DetailCard label="Unit Price" value={`₹${Number(product.defaultPrice || product.price).toLocaleString('en-IN')}`} mono />
                               <DetailCard label="Category" value={product.category} />
+                              <DetailCard label="SAC Code" value={product.sac || '—'} />
                             </div>
                             <div className="pp-expanded-actions">
                               <button
@@ -307,7 +351,21 @@ const ProductsPage = () => {
                               >
                                 <Trash2 size={13} style={{ marginRight: 6 }} /> {isActionLoading ? 'Removing...' : 'Remove Item'}
                               </button>
-                              <button className="pp-edit-btn" onClick={(e) => e.stopPropagation()}>
+                              <button 
+                                className="pp-edit-btn" 
+                                onClick={(e) => { 
+                                  e.stopPropagation(); 
+                                  setEditingProduct(product);
+                                  setNewProduct({
+                                    name: product.name,
+                                    price: String(product.defaultPrice || product.price),
+                                    description: product.description || '',
+                                    category: product.category || 'Service',
+                                    sac: product.sac ? String(product.sac) : ''
+                                  });
+                                  setIsFormVisible(true);
+                                }}
+                              >
                                 Edit Product <ArrowUpRight size={13} style={{ marginLeft: 6 }} />
                               </button>
                             </div>
@@ -319,13 +377,16 @@ const ProductsPage = () => {
                 );
               })}
             </tbody>
+            {filteredProducts.length > 0 && (
+              <tfoot>
+                <tr className="pp-footer-row">
+                  <td colSpan={7} className="pp-footer-td">
+                    {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} in catalog
+                  </td>
+                </tr>
+              </tfoot>
+            )}
           </table>
-        )}
-
-        {filteredProducts.length > 0 && (
-          <div className="pp-table-footer">
-            {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} in catalog
-          </div>
         )}
       </div>
     </div>

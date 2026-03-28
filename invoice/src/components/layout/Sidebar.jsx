@@ -137,16 +137,14 @@ const Sidebar = ({ isOpen, onToggle }) => {
     <>
       {/* ── Mobile top bar ── */}
       <div data-sidebar-mobile-bar className="sb-mobile-bar">
-        <button className="sb-menu-btn" onClick={() => setMobileOpen(true)}>
-          <Menu size={18} color="#334155" />
-        </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div className="sb-brand-icon" style={{ width: 28, height: 28 }}>
-            <LayoutDashboard size={14} color="#fff" />
-          </div>
-          <span className="sb-brand-name">Invo<span style={{ color: '#3b82f6' }}>Gen</span></span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <button className="sb-menu-btn" onClick={() => setMobileOpen(true)}>
+            <Menu size={20} color="#334155" />
+          </button>
+          <span className="sb-brand-name" style={{ fontSize: '16px' }}>
+            Invo<span style={{ color: '#3b82f6' }}>Gen</span>
+          </span>
         </div>
-        <div style={{ width: 36 }} />
       </div>
 
       {/* ── Mobile drawer backdrop ── */}
