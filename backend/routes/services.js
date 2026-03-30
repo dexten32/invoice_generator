@@ -79,7 +79,7 @@ router.post('/', async (req, res) => {
         description: description || '',
         category: category || 'Service',
         gstRate: 18, // Default GST rate for new services
-        sac: sac ? parseInt(sac) : null,
+        sac: sac ? String(sac) : null,
       },
     });
     return res.status(201).json({
@@ -134,7 +134,7 @@ router.put('/:id', async (req, res) => {
         defaultPrice: Math.round(parsedPrice * 100) / 100,
         description: description || '',
         category: category || 'Service',
-        sac: sac ? parseInt(sac) : null,
+        sac: sac ? String(sac) : null,
       },
     });
     return res.status(200).json({

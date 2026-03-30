@@ -97,6 +97,17 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
           logo: c.logo || prev.business.logo || defaultLogo,
           email: c.email || prev.business.email,
           website: c.website || prev.business.website,
+          phone: c.phone || prev.business.phone || '',
+          bankDetails: {
+            bankName: c.bankName || prev.business.bankDetails?.bankName || '',
+            accountNumber: c.accountNumber || prev.business.bankDetails?.accountNumber || '',
+            ifscCode: c.ifscCode || prev.business.bankDetails?.ifscCode || '',
+            location: c.bankLocation || prev.business.bankDetails?.location || '',
+          },
+          signature: {
+            name: c.signatureName || prev.business.signature?.name || '',
+            image: c.signatureImage || prev.business.signature?.image || '',
+          }
         }
       }));
     }
@@ -117,6 +128,7 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
   const updateBusinessProfile = async () => {
     setIsSavingBusiness(true);
     try {
+      console.log('Sending business profile update:', data.business);
       const token = localStorage.getItem('auth_token');
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/companies`, {
         method: 'PUT',
@@ -124,9 +136,12 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
         body: JSON.stringify(data.business),
       });
       if (!res.ok) throw new Error('Failed to update profile');
+      showToast('Business profile updated successfully!');
       refetchCompany();
+      setIsEditingBusiness(false);
     } catch (err) {
       console.error('Update error:', err);
+      showToast('Failed to update business profile.');
     } finally {
       setIsSavingBusiness(false);
     }
@@ -137,6 +152,28 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
 
   const handleChange = (section, field, value) =>
     onChange(prev => ({ ...prev, [section]: { ...prev[section], [field]: value } }));
+
+  const handleNestedChange = (section, nestedField, field, value) => {
+    onChange(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [nestedField]: {
+          ...prev[section][nestedField],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleSignatureUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => handleNestedChange('business', 'signature', 'image', reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleCustomerSelect = (e) => {
     const id = e.target.value;
@@ -163,7 +200,15 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
       ...prev,
       items: prev.items.map(item =>
         item.id === itemId
-          ? { ...item, serviceId, description: service?.name ?? '', longDescription: service?.description ?? '', rate: service?.defaultPrice ?? 0, gstRate: service?.gstRate ?? 0 }
+          ? { 
+              ...item, 
+              serviceId, 
+              description: service?.name ?? '', 
+              longDescription: service?.description ?? '', 
+              rate: service?.defaultPrice ?? 0, 
+              gstRate: service?.gstRate ?? 0,
+              hsnSac: service?.sac ?? ''
+            }
           : item
       ),
     }));
@@ -173,7 +218,7 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
     onChange(prev => ({ ...prev, items: prev.items.map(item => item.id === id ? { ...item, [field]: value } : item) }));
 
   const addItem = () =>
-    onChange(prev => ({ ...prev, items: [...prev.items, { id: Date.now(), serviceId: '', description: '', longDescription: '', rate: 0, quantity: 1, gstRate: 0 }] }));
+    onChange(prev => ({ ...prev, items: [...prev.items, { id: Date.now(), serviceId: '', description: '', longDescription: '', rate: 0, quantity: 1, gstRate: 0, hsnSac: '' }] }));
 
   const removeItem = (id) =>
     onChange(prev => ({ ...prev, items: prev.items.filter(item => item.id !== id) }));
@@ -226,7 +271,7 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
             <input id="logo-input" type="file" accept="image/*" onChange={handleLogoUpload} hidden disabled={!isEditingBusiness} />
           </div>
 
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 15 }}>
             {!isEditingBusiness ? (
               !data.isExisting && (
                 <button className="ie-btn-outline" onClick={() => setIsEditingBusiness(true)}>
@@ -238,10 +283,7 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
                 <button
                   className="ie-btn-outline"
                   style={{ background: '#0f172a', color: 'white', border: 'none', opacity: isSavingBusiness ? 0.7 : 1 }}
-                  onClick={async () => {
-                    await updateBusinessProfile();
-                    setIsEditingBusiness(false);
-                  }}
+                  onClick={updateBusinessProfile}
                   disabled={isSavingBusiness}
                 >
                   {isSavingBusiness ? 'Saving…' : 'Save Changes'}
@@ -297,7 +339,24 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
               />
             </Field>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+            <Field label="Phone Number">
+              <div className="ie-input-icon-wrap">
+                <LuPhone size={13} color="#94a3b8" className="ie-input-icon" />
+                <input
+                  className="ie-input"
+                  style={{
+                    paddingLeft: 32,
+                    background: isEditingBusiness ? 'white' : '#f8fafc',
+                    color: isEditingBusiness ? '#0f172a' : '#64748b'
+                  }}
+                  value={data.business.phone}
+                  placeholder="+91 98765 43210"
+                  readOnly={!isEditingBusiness}
+                  onChange={e => handleChange('business', 'phone', e.target.value)}
+                />
+              </div>
+            </Field>
             <Field label="Email Address">
               <div className="ie-input-icon-wrap">
                 <LuMail size={13} color="#94a3b8" className="ie-input-icon" />
@@ -333,6 +392,120 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
               </div>
             </Field>
           </div>
+
+          <div className="ie-divider" />
+          <h3 className="ie-section-subtitle" style={{ fontSize: 13, fontWeight: 700, color: '#475569', marginBottom: 10 }}>Bank Details</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <Field label="Bank Name">
+              <input
+                className="ie-input"
+                value={data.business.bankDetails?.bankName || ''}
+                placeholder="HDFC Bank"
+                readOnly={!isEditingBusiness}
+                style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+                onChange={e => handleNestedChange('business', 'bankDetails', 'bankName', e.target.value)}
+              />
+            </Field>
+            <Field label="Account Number">
+              <input
+                className="ie-input"
+                value={data.business.bankDetails?.accountNumber || ''}
+                placeholder="50100XXXXXXXXX"
+                readOnly={!isEditingBusiness}
+                style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+                onChange={e => handleNestedChange('business', 'bankDetails', 'accountNumber', e.target.value)}
+              />
+            </Field>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <Field label="IFSC Code">
+              <input
+                className="ie-input"
+                value={data.business.bankDetails?.ifscCode || ''}
+                placeholder="HDFC000XXXX"
+                readOnly={!isEditingBusiness}
+                style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+                onChange={e => handleNestedChange('business', 'bankDetails', 'ifscCode', e.target.value)}
+              />
+            </Field>
+            <Field label="Bank Location">
+              <input
+                className="ie-input"
+                value={data.business.bankDetails?.location || ''}
+                placeholder="Mumbai, India"
+                readOnly={!isEditingBusiness}
+                style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+                onChange={e => handleNestedChange('business', 'bankDetails', 'location', e.target.value)}
+              />
+            </Field>
+          </div>
+        </Section>
+
+        {/* ── Authorized Signature ── */}
+        <Section icon={<LuImage size={15} />} title="Authorized Signature">
+          <Field label="Signee Name">
+            <input
+              className="ie-input"
+              value={data.business.signature?.name || ''}
+              placeholder="e.g. Authorized Signatory Name"
+              readOnly={!isEditingBusiness}
+              style={{ background: isEditingBusiness ? 'white' : '#f8fafc', color: isEditingBusiness ? '#0f172a' : '#64748b' }}
+              onChange={e => handleNestedChange('business', 'signature', 'name', e.target.value)}
+            />
+          </Field>
+          
+          <input 
+            id="signature-upload" 
+            type="file" 
+            accept="image/*" 
+            onChange={handleSignatureUpload} 
+            hidden 
+            disabled={!isEditingBusiness} 
+          />
+          
+          <div 
+             className="ie-logo-upload"
+             style={{ 
+               cursor: isEditingBusiness ? 'pointer' : 'default', 
+               opacity: isEditingBusiness ? 1 : 0.8,
+               minHeight: 80,
+               marginTop: 10
+             }}
+             onClick={() => isEditingBusiness && document.getElementById('signature-upload').click()}
+          >
+            {data.business.signature?.image ? (
+              <div style={{ position: 'relative', textAlign: 'center' }}>
+                <img src={data.business.signature.image} alt="Signature" style={{ maxHeight: 60, width: 'auto' }} />
+                {isEditingBusiness && <div className="ie-logo-overlay"><LuUpload size={12} /> Change</div>}
+              </div>
+            ) : (
+              <div className="ie-logo-placeholder">
+                <LuImage size={20} color="#cbd5e1" />
+                <span style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
+                  {isEditingBusiness ? 'Upload Signature Image' : 'No Signature Provided'}
+                </span>
+              </div>
+            )}
+          </div>
+          <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 4, textAlign: 'center' }}>
+            Authorized Signature
+          </p>
+
+          {isEditingBusiness && (
+            <div style={{ display: 'flex', gap: 10, marginTop: 15, justifyContent: 'center' }}>
+              <button
+                className="ie-btn-outline"
+                style={{ background: '#0f172a', color: 'white', border: 'none', opacity: isSavingBusiness ? 0.7 : 1 }}
+                onClick={updateBusinessProfile}
+                disabled={isSavingBusiness}
+              >
+                {isSavingBusiness ? 'Saving…' : 'Save Changes'}
+              </button>
+              <button className="ie-btn-outline" onClick={() => setIsEditingBusiness(false)} disabled={isSavingBusiness}>
+                Cancel
+              </button>
+            </div>
+          )}
         </Section>
 
         {/* ── Client Information ── */}
@@ -426,6 +599,17 @@ const InvoiceEditor = ({ data, onChange, showToast }) => {
                       </option>
                     ))}
                   </StyledSelect>
+                </Field>
+
+                <Field label="HSN / SAC">
+                  <input
+                    className="ie-input"
+                    style={{ background: data.isExisting ? '#f8fafc' : 'white', color: data.isExisting ? '#64748b' : '#0f172a' }}
+                    value={item.hsnSac || ''}
+                    readOnly={data.isExisting}
+                    placeholder="e.g. 9987 or 8517"
+                    onChange={e => handleItemChange(item.id, 'hsnSac', e.target.value)}
+                  />
                 </Field>
 
                 <Field label="Additional Notes">

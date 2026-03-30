@@ -205,3 +205,27 @@ This logbook documents the chronological history of changes, features added, and
 - **Refactor**: Systematically eliminated all hardcoded `localhost:4000` strings from the frontend.
 - **Added**: `VITE_API_URL` environment variable support across all core components (`AuthContext`, `useApiData`, `EditorPage`, `ProductsPage`, `CustomersPage`).
 - **Improved**: The application is now fully deployment-agnostic; API end-points can be toggled via `.env` without code changes.
+
+---
+
+## 📅 March 30, 2026
+
+### 🕑 17:30 - Financial Compliance & Footer Restructuring
+- **Feature**: Implemented **Total in Words** conversion logic specifically for INR (Indian Rupee) formatting in `invoice.jsx`.
+- **Feature**: Added a structured **Bank Details** section to the invoice footer (Bank Name, A/C, IFSC, Location).
+- **Feature**: Integrated a dedicated **Terms & Conditions** section with standardized legal text for professional compliance.
+- **Feature**: Added an **Authorized Signatory** section supporting base64 signature image uploads and signee names.
+- **Improved**: Restructured the invoice footer layout: Bank Details & Signature (side-by-side) → Thank You Note → Terms & Conditions.
+- **Feature**: Added **Balance Due** display to the invoice header metadata for immediate visual clarity.
+- **CSS**: Optimized footer alignment and print-specific styles (`print-color-adjust`) in `invoice.css`.
+
+### 🕑 18:15 - Data Persistence & UX Overhaul
+- **Bug Fix**: Resolved a critical issue where the **Authorized Signatory** and other business profile fields (Address, Email, Website, Bank Details) were not persisting to the database.
+- **Backend Refactor**: Updated `PUT /api/companies` in `companies.js` with a more robust extraction logic to handle nested state objects from the frontend.
+- **UX**: Moved the "Save Changes" and "Cancel" buttons in `InvoiceEditor.jsx` to be globally accessible (top and bottom of the business profile area) to avoid confusion during long scroll editing.
+- **Notifications**: Integrated `showToast` notifications into the business profile update flow to provide immediate success/error feedback.
+- **Feature**: Added a **Business Phone Number** field across the entire stack:
+  - **Database**: Updated Prisma schema for the `Company` model.
+  - **API**: Updated GET/PUT routes in `companies.js`.
+  - **Frontend**: Added phone input to `InvoiceEditor.jsx` and dynamic rendering in `invoice.jsx`.
+- **Sync**: Automated database schema synchronization using `npx prisma db push` during development.

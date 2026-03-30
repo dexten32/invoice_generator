@@ -25,7 +25,27 @@ router.get('/', async (req, res) => {
  * Create or update the company profile.
  */
 router.put('/', async (req, res) => {
-  const { name, number, address1, address2, logo, email, website } = req.body;
+  const { 
+    name, number, address1, address2, logo, email, website, phone,
+    bankDetails, signature 
+  } = req.body;
+
+  // Robust extraction to handle both flat and nested structures from frontend
+  const bankName = bankDetails?.bankName ?? req.body.bankName ?? null;
+  const accountNumber = bankDetails?.accountNumber ?? req.body.accountNumber ?? null;
+  const ifscCode = bankDetails?.ifscCode ?? req.body.ifscCode ?? null;
+  const bankLocation = bankDetails?.location ?? req.body.bankLocation ?? null;
+  
+  const signatureName = signature?.name ?? req.body.signatureName ?? null;
+  const signatureImage = signature?.image ?? req.body.signatureImage ?? null;
+
+  console.log('[Companies] PUT req.body keys:', Object.keys(req.body));
+  console.log('[Companies] Extracted Data:', { 
+    name, email, phone,
+    bankName, 
+    signatureName,
+    signatureImage: signatureImage ? 'present' : 'absent' 
+  });
   
   try {
     // If a new base64 logo is provided, save it to the physical file system
@@ -58,6 +78,13 @@ router.put('/', async (req, res) => {
           logo,
           email,
           website,
+          phone,
+          bankName,
+          accountNumber,
+          ifscCode,
+          bankLocation,
+          signatureName,
+          signatureImage,
         },
       });
     } else {
@@ -69,6 +96,13 @@ router.put('/', async (req, res) => {
           logo,
           email,
           website,
+          phone,
+          bankName,
+          accountNumber,
+          ifscCode,
+          bankLocation,
+          signatureName,
+          signatureImage,
         },
       });
     }

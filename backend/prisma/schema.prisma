@@ -16,6 +16,13 @@ model Company {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   email       String?
   website     String?
+  phone       String?   @map("phone_number")
+  bankName      String?   @map("bank_name")
+  accountNumber String?   @map("account_number")
+  ifscCode      String?   @map("ifsc_code")
+  bankLocation  String?   @map("bank_location")
+  signatureName  String?   @map("signature_name")
+  signatureImage String?   @map("signature_image")
   invoices    Invoice[]
 
   @@map("companies")
@@ -50,7 +57,7 @@ model Service {
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
   category     String        @default("Service")
-  sac          Int?          @map("sac")
+  sac          String?       @map("sac")
   invoiceItems InvoiceItem[]
 
   @@map("services")
@@ -100,6 +107,7 @@ model InvoiceItem {
   unitPrice           Decimal  @map("unit_price") @db.Decimal(20, 2)
   quantity            Int      @default(1)
   gstRate             Decimal  @map("gst_rate") @db.Decimal(5, 2)
+  hsnSacSnapshot      String?  @map("hsn_sac_snapshot")
   lineTotal           Decimal  @map("line_total") @db.Decimal(20, 2)
   createdAt           DateTime @default(now()) @map("created_at")
   invoice             Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)

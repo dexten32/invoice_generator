@@ -54,6 +54,22 @@ model User {
   invoices  Invoice[]
 }
 
+model Company {
+  id            String    @id @default(cuid())
+  companyName   String    @map("company_name")
+  address       String?
+  phone         String?   @map("phone_number")
+  email         String?
+  website       String?
+  bankName      String?   @map("bank_name")
+  accountNumber String?   @map("account_number")
+  ifscCode      String?   @map("ifsc_code")
+  bankLocation  String?   @map("bank_location")
+  signatureName String?   @map("signature_name")
+  signatureImage String?  @map("signature_image")
+  invoices      Invoice[]
+}
+
 model Invoice {
   id            String        @id @default(cuid())
   invoiceNumber String        @unique
@@ -109,6 +125,9 @@ model Service {
 4. **Protected Core**: Frontend routes and API endpoints are protected via a centralized `AuthProvider` and `authMiddleware`.
 
 ## 🛡️ Security & Premium Features
+- **Comprehensive Profile**: Full business metadata support including multiple addresses, bank details, and digital signatures.
+- **Financial Compliance**: Automatic **Total in Words** conversion formatted for the Indian Rupee (INR) system.
+- **Structured Footer**: Professional invoice footer featuring nested Bank Details, Terms & Conditions, and Authorized Signature blocks.
 - **Sequential Numbering**: Automatic generation of the next invoice number (e.g., `INV-1002`) to ensure accounting integrity.
 - **Global Notifications**: A centralized `ToastProvider` for consistent user feedback across all actions.
 - **Data Snapshots**: Line items store a snapshot of the service name and price at the time of invoicing, preserving historical data even if the catalog changes.

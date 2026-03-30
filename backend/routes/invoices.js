@@ -83,6 +83,7 @@ router.post('/', authMiddleware, async (req, res) => {
         unitPrice: rate,
         quantity: q,
         gstRate: Number(item.gstRate) || 0,
+        hsnSacSnapshot: item.hsnSac || null,
         lineTotal: lineTot,
       };
     });

@@ -20,72 +20,125 @@ const Invoice = ({ data }) => {
         }).format(amount);
     };
 
+    const toWords = (amount) => {
+        const single = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+        const double = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', 'Ten', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+        const formatNumber = (num) => {
+            if (num === 0) return '';
+            if (num < 10) return single[num];
+            if (num < 20) return double[num - 10];
+            if (num < 100) return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? ' ' + single[num % 10] : '');
+            if (num < 1000) return single[Math.floor(num / 100)] + ' Hundred' + (num % 100 !== 0 ? ' and ' + formatNumber(num % 100) : '');
+            return '';
+        };
+
+        const convert = (num) => {
+            if (num === 0) return 'Zero';
+            let res = '';
+            if (num >= 10000000) {
+                res += formatNumber(Math.floor(num / 10000000)) + ' Crore ';
+                num %= 10000000;
+            }
+            if (num >= 100000) {
+                res += formatNumber(Math.floor(num / 100000)) + ' Lakh ';
+                num %= 100000;
+            }
+            if (num >= 1000) {
+                res += formatNumber(Math.floor(num / 1000)) + ' Thousand ';
+                num %= 1000;
+            }
+            res += formatNumber(num);
+            return res.trim();
+        };
+
+        const integerPart = Math.floor(amount);
+        const fractionalPart = Math.round((amount - integerPart) * 100);
+
+        let words = convert(integerPart) + ' Rupees';
+        if (fractionalPart > 0) {
+            words += ' and ' + convert(fractionalPart) + ' Paise';
+        }
+        return words + ' Only';
+    };
+
     return (
         <div className="invoice-wrapper">
             <div className="invoice-container select-none">
 
-                {/* Top Header Section */}
-                <div className="invoice-header">
-                    <div className="header-left">
-                        <div className="logo-container">
-                            {data.business.logo ? (
-                                <img src={data.business.logo} alt="Logo" className="invoice-logo" />
-                            ) : (
-                                <div className="placeholder-logo">LOGO</div>
-                            )}
-                        </div>
 
-                        <div className="business-info">
-                            <h2 className="business-name">{business.name || 'Business Name'}</h2>
-                            {business.number && (
-                                <p className="business-number">
-                                    <strong>Business Number</strong> {business.number}
-                                </p>
-                            )}
-                            {business.address1 && <p>{business.address1}</p>}
-                            {business.address2 && <p>{business.address2}</p>}
-                            {business.phone && <p>{business.phone}</p>}
-                            {business.email && <p><a href={`mailto:${business.email}`} className="link">{business.email}</a></p>}
-                            {business.website && <p><a href={`http://${business.website}`} className="link">{business.website}</a></p>}
-                        </div>
+                {/* Header Row: Logo Top Left, "TAX INVOICE" & Invoice # Top Right */}
+                <div className="invoice-header-row">
+                    <div className="logo-container">
+                        <img src="/cynox_invoice_logo.svg" alt="Cynox Security" className="invoice-logo" />
                     </div>
-
-                    <div className="header-right">
-                        <div className="meta-group">
-                            <span className="meta-label">INVOICE</span>
-                            <span className="meta-value">{meta.invoiceNumber}</span>
+                    <div className="header-meta-right">
+                        <div className="tax-invoice-label">TAX INVOICE</div>
+                        <div className="invoice-num-inline">
+                            <span className="label">Invoice #</span>
+                            <span className="value">{meta.invoiceNumber}</span>
                         </div>
-                        <div className="meta-group">
-                            <span className="meta-label">DATE</span>
-                            <span className="meta-value">{meta.date}</span>
-                        </div>
-                        <div className="meta-group">
-                            <span className="meta-label">DUE</span>
-                            <span className="meta-value">{meta.dueDate}</span>
-                        </div>
-                        <div className="meta-group balance-due-top">
-                            <span className="meta-label">BALANCE DUE</span>
-                            <span className="meta-value">{formatCurrency(total)}</span>
-                        </div>
+                        {/* <div className="balance-due-header">
+                            <div className="balance-label">Balance Due</div>
+                            <span className="balance-value">{formatCurrency(total)}</span>
+                        </div> */}
                     </div>
                 </div>
 
-                <div className="divider-full" />
+                {/* Business Info Row: Company Address Left */}
+                <div className="business-meta-row">
+                    <div className="business-address-block">
+                        <h2 className="business-name-header">{business.name || 'Cynox Security'}</h2>
 
-                {/* Bill To Section */}
-                <div className="bill-to-section">
-                    <p className="section-label">BILL TO</p>
-                    <h3 className="client-name">{client.name || 'Client Name'}</h3>
-                    {client.gstNumber && <p className="client-gst"><strong>GST:</strong> {client.gstNumber}</p>}
-                    <p className="client-address">
-                        {[client.street, client.district, client.city, client.state, client.pincode, client.country].filter(Boolean).join(', ') || 'Address not provided'}
-                    </p>
-                    {(client.phoneCountryCode || client.phoneNumber) && (
-                        <p className="contact-line">
-                            <span className="icon">📞</span> {client.phoneCountryCode} {client.phoneNumber}
-                        </p>
-                    )}
-                    {client.email && <p><a href={`mailto:${client.email}`} className="link">{client.email}</a></p>}
+                        {business.address1 && <p>{business.address1}</p>}
+                        {business.address2 && <p>{business.address2}</p>}
+                        {business.number && <p><strong>GSTIN:</strong> {business.number}</p>}
+                        {business.phone && <p>{business.phone}</p>}
+                        {business.email && <p>{business.email}</p>}
+                        {business.website && <p>{business.website}</p>}
+                    </div>
+                </div>
+
+                {/* <div className="divider-full" /> */}
+
+                {/* Client / Shipping / Metadata Grid Section */}
+                <div className="client-meta-section">
+                    <div className="client-left-blocks">
+                        <div className="address-block">
+                            <p className="block-label">Bill To</p>
+                            <h3 className="client-name-bold">{client.name || 'Client Name'}</h3>
+                            <p className="client-detail-text">
+                                {[client.street, client.district, client.city, client.state, client.pincode, client.country].filter(Boolean).join(', ') || 'Address not provided'}
+                            </p>
+                            {client.gstNumber && <p className="client-detail-text"><strong>GST:</strong> {client.gstNumber}</p>}
+                        </div>
+
+                        <div className="address-block">
+                            <p className="block-label">Ship To</p>
+                            <h3 className="client-name-bold">{client.name || 'Client Name'}</h3>
+                            <p className="client-detail-text">
+                                {[client.street, client.district, client.city, client.state, client.pincode, client.country].filter(Boolean).join(', ') || 'Address not provided'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="client-right-metadata">
+                        <div className="meta-grid">
+                            <div className="meta-row">
+                                <span className="meta-label">Invoice Date</span>
+                                <span className="meta-value">{meta.date}</span>
+                            </div>
+                            <div className="meta-row">
+                                <span className="meta-label">Terms</span>
+                                <span className="meta-value">{meta.terms || 'On Receipt'}</span>
+                            </div>
+                            <div className="meta-row">
+                                <span className="meta-label">Due Date</span>
+                                <span className="meta-value">{meta.date}</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Services Table */}
@@ -93,21 +146,25 @@ const Invoice = ({ data }) => {
                     <table className="items-table">
                         <thead>
                             <tr>
-                                <th className="col-desc">DESCRIPTION</th>
-                                <th className="col-rate">RATE</th>
+                                <th className="col-id">ID</th>
+                                <th className="col-item">ITEM NAME & DESCRIPTION</th>
+                                <th className="col-hsn">HSN/SAC</th>
                                 <th className="col-qty">QTY</th>
+                                <th className="col-rate">RATE</th>
                                 <th className="col-amount">AMOUNT</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {items.map((item) => (
+                            {items.map((item, index) => (
                                 <tr key={item.id}>
-                                    <td className="col-desc">
-                                        <strong>{item.description}</strong>
+                                    <td className="col-id">{index + 1}</td>
+                                    <td className="col-item">
+                                        <span className="item-name">{item.description}</span>
                                         {item.longDescription && <p className="item-desc">{item.longDescription}</p>}
                                     </td>
-                                    <td className="col-rate">{formatCurrency(item.rate)}</td>
+                                    <td className="col-hsn">{item.hsnSac || '—'}</td>
                                     <td className="col-qty">{item.quantity}</td>
+                                    <td className="col-rate">{formatCurrency(item.rate)}</td>
                                     <td className="col-amount">{formatCurrency(item.rate * item.quantity)}</td>
                                 </tr>
                             ))}
@@ -148,6 +205,11 @@ const Invoice = ({ data }) => {
                                 <span className="total-label">BALANCE DUE</span>
                                 <span className="total-value">{formatCurrency(total)}</span>
                             </div>
+
+                            <div className="total-in-words">
+                                <span className="words-label">Amount in Words:</span>
+                                <span className="words-value">{toWords(total)}</span>
+                            </div>
                         </div>
 
                         {/* <div className="signature-section">
@@ -167,12 +229,56 @@ const Invoice = ({ data }) => {
                     </div>
                 </div>
 
+                <div className="thank-you-section">
+                    <p className="thank-you-text">Thanks for your business</p>
+                </div>
+
+                <div className="invoice-footer-bottom">
+                    <div className="bank-details-section">
+                        <h4 className="footer-section-title">CYNOX SECURITY LLP</h4>
+                        {business.bankDetails ? (
+                            <div className="bank-details-grid">
+                                <div className="bank-row">
+                                    <span className="bank-label">Bank Name:</span>
+                                    <span className="bank-value">{business.bankDetails.bankName || 'N/A'}</span>
+                                </div>
+                                <div className="bank-row">
+                                    <span className="bank-label">Account No:</span>
+                                    <span className="bank-value">{business.bankDetails.accountNumber || 'N/A'}</span>
+                                </div>
+                                <div className="bank-row">
+                                    <span className="bank-label">IFSC Code:</span>
+                                    <span className="bank-value">{business.bankDetails.ifscCode || 'N/A'}</span>
+                                </div>
+                                <div className="bank-row">
+                                    <span className="bank-label">Location:</span>
+                                    <span className="bank-value">{business.bankDetails.location || 'N/A'}</span>
+                                </div>
+                            </div>
+                        ) : (
+                            <p className="no-data-text">Bank details not provided</p>
+                        )}
+                    </div>
+
+                    <div className="signature-section-new">
+                        {business.signature?.image && (
+                            <div className="signature-image-wrapper">
+                                <img src={business.signature.image} alt="Signature" className="signature-img" />
+                            </div>
+                        )}
+                        <div className="signature-line-new" />
+                        <p className="signature-name-new">{business.signature?.name || 'Authorized Signatory'}</p>
+                        <p className="signature-label-new">Authorized Signature</p>
+                    </div>
+                </div>
+
                 <div className="footer-notes">
-                    <p>{footerNotes}</p>
+                    <h4 className="footer-section-title">Terms & Conditions</h4>
+                    <p className="terms-text">{footerNotes}</p>
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 };
 
