@@ -48,22 +48,6 @@ router.put('/', async (req, res) => {
   });
   
   try {
-    // If a new base64 logo is provided, save it to the physical file system
-    // so it autoupdates the default logo.
-    if (logo && logo.startsWith('data:image')) {
-      const match = logo.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
-      if (match) {
-        // match[1] is the extension, match[2] is the base64 data
-        const base64Data = match[2];
-        const buffer = Buffer.from(base64Data, 'base64');
-        const frontendAssetPath = path.join(__dirname, '../../invoice/src/assets/cynox_logo.png');
-        
-        fs.writeFileSync(frontendAssetPath, buffer);
-        console.log('[Companies] Saved new logo image to physical filesystem:', frontendAssetPath);
-      }
-    }
-
-
     // Attempt to update the first company found, or create one if none exists.
     const existing = await prisma.company.findFirst();
     

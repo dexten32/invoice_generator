@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import SetupPasswordModal from '../auth/SetupPasswordModal';
+import Sidebar from './Sidebar/Sidebar';
+import SetupPasswordModal from '../auth/SetupPasswordModal/SetupPasswordModal';
 
 const MainLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(true);

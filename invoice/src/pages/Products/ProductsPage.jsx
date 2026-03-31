@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import './ProductsPage.css';
 import {
   Plus, Trash2, Tag, IndianRupee, Search,
@@ -7,8 +7,9 @@ import {
   PlusCircle, Box, Archive, ChevronRight, Package
 } from 'lucide-react';
 
-import { useApiData } from '../hooks/useApiData';
-import { useToast } from '../context/ToastContext';
+import { useApiData } from '../../hooks/useApiData';
+import { useToast } from '../../context/ToastContext';
+
 
 const CATEGORIES = ['Service', 'Physical Product', 'Digital Goods', 'Subscription'];
 
@@ -43,10 +44,10 @@ const ProductsPage = () => {
 
     setIsActionLoading(true);
     try {
-      const url = editingProduct 
-        ? `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/services/${editingProduct.id}`
-        : `${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/services`;
-      
+      const url = editingProduct
+        ? `${import.meta.env.VITE_API_URL}/services/${editingProduct.id}`
+        : `${import.meta.env.VITE_API_URL}/services`;
+
       const method = editingProduct ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -79,7 +80,7 @@ const ProductsPage = () => {
   const deleteProduct = async (id) => {
     setIsActionLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/services/${id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/services/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
@@ -242,8 +243,8 @@ const ProductsPage = () => {
           </div>
         ) : error ? (
           <div className="pp-empty" style={{ padding: '40px 0' }}>
-             <p className="pp-empty-sub" style={{ color: '#ef4444' }}>Backend Connection Error. Please verify the port 4000 server is active.</p>
-             <button className="pp-btn-outline" onClick={refetch} style={{ marginTop: 10 }}>Try Again</button>
+            <p className="pp-empty-sub" style={{ color: '#ef4444' }}>Backend Connection Error. Please verify the port 4000 server is active.</p>
+            <button className="pp-btn-outline" onClick={refetch} style={{ marginTop: 10 }}>Try Again</button>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="pp-empty">
@@ -323,11 +324,11 @@ const ProductsPage = () => {
                         </div>
                       </td>
                       <td className="pp-td mobile-only-cell">
-                         <ChevronRight
-                            size={14}
-                            color="#cbd5e1"
-                            style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
-                          />
+                        <ChevronRight
+                          size={14}
+                          color="#cbd5e1"
+                          style={{ transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }}
+                        />
                       </td>
                     </tr>
 
@@ -351,10 +352,10 @@ const ProductsPage = () => {
                               >
                                 <Trash2 size={13} style={{ marginRight: 6 }} /> {isActionLoading ? 'Removing...' : 'Remove Item'}
                               </button>
-                              <button 
-                                className="pp-edit-btn" 
-                                onClick={(e) => { 
-                                  e.stopPropagation(); 
+                              <button
+                                className="pp-edit-btn"
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   setEditingProduct(product);
                                   setNewProduct({
                                     name: product.name,

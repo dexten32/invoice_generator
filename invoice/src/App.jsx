@@ -2,14 +2,15 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import EditorPage from './pages/EditorPage';
-import CustomersPage from './pages/CustomersPage';
-import ProductsPage from './pages/ProductsPage';
-import InvoicesPage from './pages/InvoicesPage';
+import LoginPage from './pages/Login/LoginPage';
+import SignupPage from './pages/Signup/SignupPage';
+import EditorPage from './pages/Editor/EditorPage';
+import CustomersPage from './pages/Customers/CustomersPage';
+import ProductsPage from './pages/Products/ProductsPage';
+import InvoicesPage from './pages/Invoices/InvoicesPage';
+
 
 function App() {
   return (

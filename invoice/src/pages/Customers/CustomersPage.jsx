@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useApiData } from '../hooks/useApiData';
+import { useApiData } from '../../hooks/useApiData';
 import './CustomersPage.css';
 
 import {

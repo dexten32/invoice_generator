@@ -3,36 +3,79 @@ import Invoice from '../InvoiceDetails/invoice';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { Button } from '@/components/ui/button';
-import { LuFileDown } from 'react-icons/lu';
+import { LuFileDown, LuCircleAlert } from 'react-icons/lu';
 import './InvoicePreview.css';
 
 const InvoicePreview = ({ data, onReset, showToast }) => {
     const hasQuantityError = data?.items?.some(item => item.quantity > 1000);
     const isReadyToExport = data?.client?.id && data?.items?.some(item => item.serviceId) && !hasQuantityError;
     const [isExporting, setIsExporting] = React.useState(false);
-    
+    const [scale, setScale] = React.useState(1);
+    const wrapperRef = React.useRef(null);
+
+    // Calculate scale function to fit the fixed 850px invoice into the viewport
+    const calculateScale = React.useCallback(() => {
+        if (!wrapperRef.current) return;
+        const width = wrapperRef.current.clientWidth;
+        const padding = 32; // Horizontal padding
+        const newScale = Math.min(1, (width - padding) / 850);
+        setScale(newScale);
+    }, []);
+
+    React.useEffect(() => {
+        calculateScale();
+        window.addEventListener('resize', calculateScale);
+        return () => window.removeEventListener('resize', calculateScale);
+    }, [calculateScale]);
+
     const downloadPDF = async (e) => {
         if (e) e.preventDefault();
         
         setIsExporting(true);
 
-        // Use setTimeout to ensure any button click animation/state updates
-        // don't interfere with the DOM capture process.
+        // Capture after slight delay to ensure UI stability
         setTimeout(() => {
             const input = document.querySelector('.invoice-container');
-            if (!input) return;
+            if (!input) {
+                setIsExporting(false);
+                return;
+            }
 
-            // Temporarily adjust styling for a cleaner PDF capture.
-            const originalShadow = input.style.boxShadow;
-            const originalBorder = input.style.border;
-            input.style.boxShadow = 'none';
-            input.style.border = 'none';
+            // Temporarily reset any transforms that might interfere with html2canvas
+            const originalTransform = input.style.transform;
+            input.style.transform = 'none';
 
-            html2canvas(input, { scale: 2, useCORS: true }).then((canvas) => {
-                // Restore styling
-                input.style.boxShadow = originalShadow;
-                input.style.border = originalBorder;
-
+            html2canvas(input, { 
+                scale: 3, // High scale for professional quality
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: 850,
+                windowWidth: 850, // Force desktop-like rendering during capture
+                scrollX: 0,
+                scrollY: 0,
+                onclone: (clonedDoc) => {
+                    // Find the invoice-container in the cloned document
+                    const clonedInput = clonedDoc.querySelector('.invoice-container');
+                    const clonedWrapper = clonedDoc.querySelector('.preview-scale-wrapper');
+                    
+                    if (clonedInput) {
+                        // Ensure it's full width and NOT scaled in the clone
+                        clonedInput.style.width = '850px';
+                        clonedInput.style.transform = 'none';
+                        clonedInput.style.position = 'relative';
+                        clonedInput.style.margin = '0';
+                        clonedInput.style.boxShadow = 'none';
+                        clonedInput.style.border = 'none';
+                    }
+                    if (clonedWrapper) {
+                        // Remove transform and fixed width from wrapper in the clone
+                        clonedWrapper.style.transform = 'none';
+                        clonedWrapper.style.width = '850px';
+                        clonedWrapper.style.minWidth = '850px';
+                    }
+                }
+            }).then((canvas) => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -40,13 +83,11 @@ const InvoicePreview = ({ data, onReset, showToast }) => {
 
                 pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
                 
-                // Format the filename to just the invoice number
                 const invoiceNum = data?.meta?.invoiceNumber || 'Invoice';
                 const fileName = `${invoiceNum}.pdf`;
                 
                 pdf.save(fileName);
                 
-                // Save the invoice to the backend ONLY if it's a new invoice
                 if (!data.isExisting) {
                     fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000/api'}/invoices`, {
                         method: 'POST',
@@ -60,7 +101,6 @@ const InvoicePreview = ({ data, onReset, showToast }) => {
                             const errorData = await res.json();
                             throw new Error(errorData.message || 'Failed to save invoice');
                         }
-                        // Trigger the reset callback for NEW invoices only
                         if (onReset) onReset();
                     }).catch(err => {
                         console.error('Error saving invoice:', err);
@@ -68,7 +108,6 @@ const InvoicePreview = ({ data, onReset, showToast }) => {
                     })
                     .finally(() => setIsExporting(false));
                 } else {
-                    // For existing invoices, just finish the exporting state without saving or resetting
                     setIsExporting(false);
                 }
             });
@@ -100,7 +139,14 @@ const InvoicePreview = ({ data, onReset, showToast }) => {
                     </div>
                 )}
             </div>
-            <Invoice data={data} />
+            <div className="preview-content-outer" ref={wrapperRef}>
+                <div 
+                    className="preview-scale-wrapper" 
+                    style={{ transform: `scale(${scale})` }}
+                >
+                    <Invoice data={data} />
+                </div>
+            </div>
         </div>
     );
 };
